@@ -4,8 +4,10 @@ lua_listbox:SetHeight(250)
 
 local real_set_as_autorun = gui.Reference("Settings", "Lua scripts", "Manage scripts", "Set As Autorun")
 local real_unload_btn = gui.Reference("Settings", "Lua scripts", "Manage scripts", "Unload")
+local real_reset_lua_state_btn = gui.Reference("Settings", "Lua scripts", "Manage scripts", "Reset Lua State")
 real_unload_btn:SetInvisible(true)
 real_set_as_autorun:SetInvisible(true)
+real_reset_lua_state_btn:SetDisabled(true)
 
 local function split(inputstr, sep)
 	if sep == nil then
@@ -19,7 +21,7 @@ local function split(inputstr, sep)
 end
 
 
-local function get_auto_scripts()
+local function get_autorun_scripts()
 	local autorun_files = {}
 	local contents = file.Read("autorun.lua")
 	for k, v in pairs(split(contents, "\n")) do
@@ -38,19 +40,17 @@ local function get_all_scripts()
 	return all_scripts
 end
 
-local lua_autorun_scripts = gui.Listbox(gui.Reference("Settings", "Lua scripts", "Manage scripts"), "lua.autorun.scripts", 50, unpack(get_auto_scripts()))
+local lua_autorun_scripts = gui.Listbox(gui.Reference("Settings", "Lua scripts", "Manage scripts"), "lua.autorun.scripts", 50, unpack(get_autorun_scripts()))
 lua_autorun_scripts:SetPosY(260)
 lua_autorun_scripts:SetWidth(280)
 lua_autorun_scripts:SetHeight(145)
-
-
 
 
 local function add_to_autorun()
 	local all_scripts = get_all_scripts()
 	local selected_file = all_scripts[lua_listbox:GetValue() + 1]
 	
-	local autorun_files = get_auto_scripts()
+	local autorun_files = get_autorun_scripts()
 	table.insert(autorun_files, selected_file)
 	
 	local new_autorun_files = ""
@@ -74,7 +74,7 @@ local function remove_from_atuorun()
 	end
 	
 	file.Write("autorun.lua", new_autorun_files)
-	lua_autorun_scripts:SetOptions(unpack(get_auto_scripts()))
+	lua_autorun_scripts:SetOptions(unpack(get_autorun_scripts()))
 end
 
 local function unload_script()
@@ -87,8 +87,8 @@ local function unload_script()
 		lua_autorun_scripts:Remove()
 		real_unload_btn:SetInvisible(false)
 		real_set_as_autorun:SetInvisible(false)
+		real_reset_lua_state_btn:SetDisabled(false)
 	end
-	print(selected_file)
 	UnloadScript(selected_file)
 end
 
