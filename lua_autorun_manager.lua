@@ -88,6 +88,7 @@ local function unload_script()
 		real_unload_btn:SetInvisible(false)
 		real_set_as_autorun:SetInvisible(false)
 		real_reset_lua_state_btn:SetDisabled(false)
+		lua_listbox:SetHeight(405)
 	end
 	UnloadScript(selected_file)
 end
