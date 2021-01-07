@@ -2,9 +2,12 @@ local lua_gb_ref = gui.Reference("Settings", "Lua scripts", "Manage scripts")
 local lua_listbox = gui.Reference("Settings", "Lua scripts", "Manage scripts", "")
 lua_listbox:SetHeight(250)
 
-local lua_ref2 = gui.Reference("Settings", "Lua scripts", "Manage scripts", "Set As Autorun"):SetInvisible(true)
+local real_set_as_autorun = gui.Reference("Settings", "Lua scripts", "Manage scripts", "Set As Autorun")
+local real_unload_btn = gui.Reference("Settings", "Lua scripts", "Manage scripts", "Unload")
+real_unload_btn:SetInvisible(true)
+real_set_as_autorun:SetInvisible(true)
 
-function split(inputstr, sep)
+local function split(inputstr, sep)
 	if sep == nil then
 			sep = "%s"
 	end
@@ -41,6 +44,8 @@ lua_autorun_scripts:SetWidth(280)
 lua_autorun_scripts:SetHeight(145)
 
 
+
+
 local function add_to_autorun()
 	local all_scripts = get_all_scripts()
 	local selected_file = all_scripts[lua_listbox:GetValue() + 1]
@@ -72,6 +77,22 @@ local function remove_from_atuorun()
 	lua_autorun_scripts:SetOptions(unpack(get_auto_scripts()))
 end
 
+local function unload_script()
+	-- Have to remake the unload script functionality. If we unload a script that created a gui.Listbox inside the "manage script" groupbox, it will crash CSGO........
+	-- so we must remove the listbox before unloading
+	local all_scripts = get_all_scripts()
+	local selected_file = all_scripts[lua_listbox:GetValue() + 1]
+	
+	if selected_file == GetScriptName() then
+		lua_autorun_scripts:Remove()
+		real_unload_btn:SetInvisible(false)
+		real_set_as_autorun:SetInvisible(false)
+	end
+	print(selected_file)
+	UnloadScript(selected_file)
+end
+
+
 local add_to_autorun_btn = gui.Button(lua_gb_ref, "Add to autorun", add_to_autorun)
 add_to_autorun_btn:SetPosX(297)
 add_to_autorun_btn:SetPosY(316)
@@ -84,3 +105,8 @@ remove_from_autorun_btn:SetPosY(316)
 remove_from_autorun_btn:SetWidth(135)
 remove_from_autorun_btn:SetHeight(28)
 
+local unload_btn = gui.Button(lua_gb_ref, "Unload", unload_script)
+unload_btn:SetPosX(440)
+unload_btn:SetPosY(160)
+unload_btn:SetWidth(136)
+unload_btn:SetHeight(28)
