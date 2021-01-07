@@ -59,11 +59,11 @@ local function add_to_autorun()
 	end
 	
 	file.Write("autorun.lua", new_autorun_files)
-	lua_autorun_scripts:SetOptions(unpack(get_auto_scripts()))
+	lua_autorun_scripts:SetOptions(unpack(get_autorun_scripts()))
 end
 
 local function remove_from_atuorun()
-	local autorun_files = get_auto_scripts()
+	local autorun_files = get_autorun_scripts()
 	local selected_file = autorun_files[lua_autorun_scripts:GetValue() + 1]
 	
 	local new_autorun_files = ''
@@ -76,6 +76,7 @@ local function remove_from_atuorun()
 	file.Write("autorun.lua", new_autorun_files)
 	lua_autorun_scripts:SetOptions(unpack(get_autorun_scripts()))
 end
+-- loadstring([[ print(1) ]])()
 
 local function unload_script()
 	-- Have to remake the unload script functionality. If we unload a script that created a gui.Listbox inside the "manage script" groupbox, it will crash CSGO........
