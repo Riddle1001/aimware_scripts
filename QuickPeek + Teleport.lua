@@ -47,7 +47,7 @@ quickpeek_clear_key:SetPosY(148)
 
 local quickpeek_teleport = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Teleport on peek", false)
 local quickpeek_teleport_maxusrcmdprocessticks = gui.Slider(quickpeek_gb, "Chicken.quickpeek.teleport.", "sv_maxusrcmdprocessticks", 16	, 0, 62)
-quickpeek_teleport_maxusrcmdprocessticks:SetDescription("Adjusting this value may have different effects on teleporting")
+quickpeek_teleport_maxusrcmdprocessticks:SetDescription("Adjusting this value may have different effects on teleporting. I use 13.")
 
 local max_ticks = gui.Reference("Misc", "General", "Server", "sv_maxusrcmdprocessticks")
 
@@ -64,19 +64,23 @@ local return_pos = nil
 -- Logic
 callbacks.Register("Draw", function()
 	local localplayer = entities.GetLocalPlayer()
+	
+	if not localplayer or not localplayer:IsAlive() then
+		is_peeking = false
+		should_return = false
+		return_pos = nil
+		return
+	end
+	
 	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
+	
 	
 	if not quickpeek_enable:GetValue() or weapon:GetWeaponID() ~= 40 then
 		max_ticks:SetValue(cached_real_max_ticks)
 		gui.SetValue("misc.speedburst.key", cached_speedburst_key)
 	end
 	
-	if not localplayer or not localplayer:IsAlive() then
-		is_peeking = false
-		should_return = false
-		return_pos = nil
 
-	end
 	
 	if input.IsButtonPressed(quickpeek_key:GetValue() or 0) then
 		is_peeking = true
@@ -152,9 +156,6 @@ end)
 
 -- UI
 callbacks.Register("Draw", function()
-	local localplayer = entities.GetLocalPlayer()
-	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
-	
 
 	-- Set visibility if quickpeek is enabled
 	quickpeek_method:SetInvisible(not quickpeek_enable:GetValue())
@@ -172,7 +173,7 @@ callbacks.Register("Draw", function()
 	gui.SetValue("misc.speedburst.enable", quickpeek_teleport:GetValue())
 	gui.SetValue("misc.speedburst.indicator", quickpeek_teleport:GetValue())
 	
-	if weapon:GetWeaponID() == 40 then
+	if localplayer and localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 40 then
 		max_ticks:SetValue(quickpeek_teleport:GetValue() and quickpeek_teleport_maxusrcmdprocessticks:GetValue() or 16)
 	else
 		max_ticks:SetValue(cached_real_max_ticks)
