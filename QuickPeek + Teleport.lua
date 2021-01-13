@@ -60,6 +60,7 @@ local is_peeking = false
 local should_return = false
 local return_pos = nil
 
+local target = nil
 
 -- Logic
 callbacks.Register("Draw", function()
@@ -77,6 +78,7 @@ callbacks.Register("Draw", function()
 	if not quickpeek_enable:GetValue() or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then
 		max_ticks:SetValue(cached_real_max_ticks)
 		gui.SetValue("misc.speedburst.key", cached_speedburst_key)
+		should_return = false
 	end
 	
 
@@ -115,10 +117,11 @@ end)
 
 
 callbacks.Register("AimbotTarget", function(t)
+
 	local localplayer = entities.GetLocalPlayer()
 	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
 	
-	if not quickpeek_enable:GetValue() or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9)then return end
+	if not quickpeek_enable:GetValue() or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then return end
 
 	if quickpeek_method:GetValue() == 1 and t:GetIndex() and is_peeking then
 		should_return = true
