@@ -63,18 +63,24 @@ local return_pos = nil
 
 -- Logic
 callbacks.Register("Draw", function()
-	if not quickpeek_enable:GetValue() then return end
+	local localplayer = entities.GetLocalPlayer()
+	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
 	
-	if not entities.GetLocalPlayer() or not entities.GetLocalPlayer():IsAlive() then
+	if not quickpeek_enable:GetValue() or weapon:GetWeaponID() ~= 40 then
+		max_ticks:SetValue(cached_real_max_ticks)
+		gui.SetValue("misc.speedburst.key", cached_speedburst_key)
+	end
+	
+	if not localplayer or not localplayer:IsAlive() then
 		is_peeking = false
 		should_return = false
 		return_pos = nil
 
 	end
-
+	
 	if input.IsButtonPressed(quickpeek_key:GetValue() or 0) then
 		is_peeking = true
-		return_pos = entities.GetLocalPlayer():GetAbsOrigin()
+		return_pos = localplayer:GetAbsOrigin()
 	end
 	
 	if quickpeek_return_pos:GetValue() == 0 and input.IsButtonReleased(quickpeek_key:GetValue() or 0) then -- Toggle selected and quickpeek key pressed
@@ -106,7 +112,10 @@ end)
 
 
 callbacks.Register("AimbotTarget", function(t)
-	if not quickpeek_enable:GetValue() then return end
+	local localplayer = entities.GetLocalPlayer()
+	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
+	
+	if not quickpeek_enable:GetValue() or  weapon:GetWeaponID() ~= 40 then return end
 
 	if quickpeek_method:GetValue() == 1 and t:GetIndex() and is_peeking then
 		should_return = true
@@ -115,7 +124,10 @@ end)
 
 
 callbacks.Register("CreateMove", function(cmd)
-	if not quickpeek_enable:GetValue() then return end
+	local localplayer = entities.GetLocalPlayer()
+	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
+	
+	if not quickpeek_enable:GetValue() or  weapon:GetWeaponID() ~= 40 then return end
 	
 	
 	if quickpeek_method:GetValue() == 0 and cmd.buttons == 4194305 and is_peeking then
@@ -126,7 +138,7 @@ callbacks.Register("CreateMove", function(cmd)
 		move_to_pos(return_pos, cmd, 1000)
 		
 		
-		local my_pos = entities.GetLocalPlayer():GetAbsOrigin()
+		local my_pos = localplayer:GetAbsOrigin()
 		local dist = vector.Distance({my_pos.x, my_pos.y, my_pos.z}, {return_pos.x, return_pos.y, return_pos.z})
 		if dist < 5 then
 			should_return = false
@@ -140,6 +152,10 @@ end)
 
 -- UI
 callbacks.Register("Draw", function()
+	local localplayer = entities.GetLocalPlayer()
+	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
+	
+
 	-- Set visibility if quickpeek is enabled
 	quickpeek_method:SetInvisible(not quickpeek_enable:GetValue())
 	quickpeek_return_pos:SetInvisible(not quickpeek_enable:GetValue())
@@ -156,7 +172,11 @@ callbacks.Register("Draw", function()
 	gui.SetValue("misc.speedburst.enable", quickpeek_teleport:GetValue())
 	gui.SetValue("misc.speedburst.indicator", quickpeek_teleport:GetValue())
 	
-	max_ticks:SetValue(quickpeek_teleport:GetValue() and quickpeek_teleport_maxusrcmdprocessticks:GetValue() or 16)
+	if weapon:GetWeaponID() == 40 then
+		max_ticks:SetValue(quickpeek_teleport:GetValue() and quickpeek_teleport_maxusrcmdprocessticks:GetValue() or 16)
+	else
+		max_ticks:SetValue(cached_real_max_ticks)
+	end
 	
 	quickpeek_method:SetDisabled(quickpeek_teleport:GetValue())
 	if quickpeek_teleport:GetValue() then
@@ -168,4 +188,3 @@ callbacks.Register("Unload", "Chicken.QuickPeek.Unload", function()
 	max_ticks:SetValue(cached_real_max_ticks)
 	gui.SetValue("misc.speedburst.key", cached_speedburst_key)
 end)
-
