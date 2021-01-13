@@ -74,8 +74,7 @@ callbacks.Register("Draw", function()
 	
 	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
 	
-	
-	if not quickpeek_enable:GetValue() or weapon:GetWeaponID() ~= 40 then
+	if not quickpeek_enable:GetValue() or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then
 		max_ticks:SetValue(cached_real_max_ticks)
 		gui.SetValue("misc.speedburst.key", cached_speedburst_key)
 	end
@@ -119,7 +118,7 @@ callbacks.Register("AimbotTarget", function(t)
 	local localplayer = entities.GetLocalPlayer()
 	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
 	
-	if not quickpeek_enable:GetValue() or  weapon:GetWeaponID() ~= 40 then return end
+	if not quickpeek_enable:GetValue() or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9)then return end
 
 	if quickpeek_method:GetValue() == 1 and t:GetIndex() and is_peeking then
 		should_return = true
@@ -131,7 +130,7 @@ callbacks.Register("CreateMove", function(cmd)
 	local localplayer = entities.GetLocalPlayer()
 	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
 	
-	if not quickpeek_enable:GetValue() or  weapon:GetWeaponID() ~= 40 then return end
+	if not quickpeek_enable:GetValue() or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then return end
 	
 	
 	if quickpeek_method:GetValue() == 0 and cmd.buttons == 4194305 and is_peeking then
@@ -172,16 +171,18 @@ callbacks.Register("Draw", function()
 	-- Enable speedburst if quickpeek teleport is enabled
 	gui.SetValue("misc.speedburst.enable", quickpeek_teleport:GetValue())
 	gui.SetValue("misc.speedburst.indicator", quickpeek_teleport:GetValue())
-	
-	if localplayer and localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 40 then
-		max_ticks:SetValue(quickpeek_teleport:GetValue() and quickpeek_teleport_maxusrcmdprocessticks:GetValue() or 16)
-	else
-		max_ticks:SetValue(cached_real_max_ticks)
-	end
+
 	
 	quickpeek_method:SetDisabled(quickpeek_teleport:GetValue())
 	if quickpeek_teleport:GetValue() then
 		quickpeek_method:SetValue(1)
+	end
+	
+	local localplayer = entities.GetLocalPlayer()
+	if localplayer and localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 40 or localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 9 then
+		max_ticks:SetValue(quickpeek_teleport:GetValue() and quickpeek_teleport_maxusrcmdprocessticks:GetValue() or 16)
+	else
+		max_ticks:SetValue(cached_real_max_ticks)
 	end
 end)
 
