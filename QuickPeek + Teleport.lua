@@ -46,6 +46,7 @@ quickpeek_clear_key:SetPosX(290)
 quickpeek_clear_key:SetPosY(148)
 
 local quickpeek_teleport = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Teleport on peek", false)
+local quickpeek_teleport_speedburst_quickpeek_key  = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Only enable speedburst when QuickPeek key is pressed", false)
 local quickpeek_teleport_maxusrcmdprocessticks = gui.Slider(quickpeek_gb, "Chicken.quickpeek.teleport.", "sv_maxusrcmdprocessticks", 16	, 0, 62)
 quickpeek_teleport_maxusrcmdprocessticks:SetDescription("Adjusting this value may have different effects on teleporting. I use 13.")
 
@@ -75,7 +76,7 @@ callbacks.Register("Draw", function()
 	
 	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
 	
-	if not quickpeek_enable:GetValue() or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then
+	if not quickpeek_enable:GetValue() then -- or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then
 		max_ticks:SetValue(cached_real_max_ticks)
 		gui.SetValue("misc.speedburst.key", cached_speedburst_key)
 		should_return = false
@@ -121,7 +122,7 @@ callbacks.Register("AimbotTarget", function(t)
 	local localplayer = entities.GetLocalPlayer()
 	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
 	
-	if not quickpeek_enable:GetValue() or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then return end
+	if not quickpeek_enable:GetValue() then return end--or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then return end
 
 	if quickpeek_method:GetValue() == 1 and t:GetIndex() and is_peeking then
 		should_return = true
@@ -133,7 +134,7 @@ callbacks.Register("CreateMove", function(cmd)
 	local localplayer = entities.GetLocalPlayer()
 	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
 	
-	if not quickpeek_enable:GetValue() or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then return end
+	if not quickpeek_enable:GetValue() then return end -- or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then return end
 	
 	
 	if quickpeek_method:GetValue() == 0 and cmd.buttons == 4194305 and is_peeking then
@@ -168,11 +169,13 @@ callbacks.Register("Draw", function()
 	quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue())
 	quickpeek_clear_key:SetDisabled(quickpeek_return_pos:GetValue() == 0 and true)
 	
-	-- Set visibility to maxusrcmdprocessesticks if teleport on peek enbaled
+	-- Set visibility to maxusrcmdprocessesticks and speedburst on quickpeek key, if teleport on peek enbaled
 	quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
+	quickpeek_teleport_speedburst_quickpeek_key:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
 	
 	-- Enable speedburst if quickpeek teleport is enabled
-	gui.SetValue("misc.speedburst.enable", quickpeek_teleport:GetValue())
+	
+	gui.SetValue("misc.speedburst.enable", quickpeek_teleport:GetValue() and quickpeek_teleport_speedburst_quickpeek_key:GetValue() and input.IsButtonDown(quickpeek_key:GetValue()) or quickpeek_enable:GetValue() and not  quickpeek_teleport_speedburst_quickpeek_key:GetValue())
 	gui.SetValue("misc.speedburst.indicator", quickpeek_teleport:GetValue())
 
 	
@@ -181,12 +184,12 @@ callbacks.Register("Draw", function()
 		quickpeek_method:SetValue(1)
 	end
 	
-	local localplayer = entities.GetLocalPlayer()
-	if localplayer and localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 40 or localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 9 then
+	-- if localplayer and localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 40 or localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 9 then
+	-- local localplayer = entities.GetLocalPlayer()
 		max_ticks:SetValue(quickpeek_teleport:GetValue() and quickpeek_teleport_maxusrcmdprocessticks:GetValue() or 16)
-	else
-		max_ticks:SetValue(cached_real_max_ticks)
-	end
+	-- else
+		-- max_ticks:SetValue(cached_real_max_ticks)
+	-- end
 end)
 
 callbacks.Register("Unload", "Chicken.QuickPeek.Unload", function()
