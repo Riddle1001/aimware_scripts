@@ -14,7 +14,6 @@ local should_unload = false
 local function AutoUpdate(link, already_updated_text, downloading_update_text)
 	local web_content = http.Get(link)
 	local web_content_split = split(web_content)
-	-- print(web_content)
 	local has_autoupdate_sig = web_content_split[1] == "--AW AutoUpdate"
 	
 	if has_autoupdate_sig then
@@ -30,16 +29,19 @@ local function AutoUpdate(link, already_updated_text, downloading_update_text)
 		error("Didn't find 'AW AutoUpdate' signature in '" .. link .. "'")
 	end
 end
-AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/QuickPeek%20%2B%20Teleport.lua",
-	"QuickPeek + Teleport is fully up to date",
-	"QuickPeek + Teleport has been updated, reload the lua.")
+
 	
 callbacks.Register("Draw", function()
 	if should_unload then
 		UnloadScript(GetScriptName()) -- UnloadScript only works within callbacks, and can't unregister callbacks from within a callback
 	end
 end)
+
+AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/QuickPeek%20%2B%20Teleport.lua",
+	"QuickPeek + Teleport is fully up to date",
+	"QuickPeek + Teleport has been updated, reload the lua.")
 	
+
 local function render(pos, radius)
 	local center = {client.WorldToScreen(Vector3(pos.x, pos.y, pos.z)) }
 	for degrees = 1, 360, 1 do
