@@ -20,9 +20,9 @@ local function AutoUpdate(link, already_updated_text, downloading_update_text)
 	if has_autoupdate_sig then
 		local file_content_split = split(file.Read(GetScriptName()))
 		if file_content_split[2] == web_content_split[2] then
-			print(already_updated_text)
+			print(string.len(already_updated_text) ~= 0 and already_updated_text)
 		else
-			print(downloading_update_text)
+			print(string.len(downloading_update_text) ~= 0 and downloading_update_text)
 			file.Write(GetScriptName(), web_content)
 			should_unload = true -- UnloadScript only works within callbacks
 		end
