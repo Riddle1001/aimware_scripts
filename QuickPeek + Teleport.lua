@@ -47,6 +47,7 @@ quickpeek_clear_key:SetPosY(148)
 
 local quickpeek_teleport = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Teleport on peek", false)
 local quickpeek_teleport_speedburst_quickpeek_key  = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Only enable speedburst when QuickPeek key is pressed", false)
+quickpeek_teleport_speedburst_quickpeek_key:SetDescription("Allows fakelag while QuickPeek key is not pressed.")
 local quickpeek_teleport_maxusrcmdprocessticks = gui.Slider(quickpeek_gb, "Chicken.quickpeek.teleport.", "sv_maxusrcmdprocessticks", 16	, 0, 62)
 quickpeek_teleport_maxusrcmdprocessticks:SetDescription("Adjusting this value may have different effects on teleporting. I use 13.")
 
