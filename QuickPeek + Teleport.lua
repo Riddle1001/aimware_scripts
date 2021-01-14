@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.1
+--version 1.12
 
 local function split(s)
     local t = {}
@@ -127,7 +127,7 @@ callbacks.Register("Draw", function()
 	
 
 	
-	if input.IsButtonPressed(quickpeek_key:GetValue() or 0) then
+	if quickpeek_key:GetValue() and input.IsButtonPressed(quickpeek_key:GetValue()) then
 		is_peeking = true
 		return_pos = localplayer:GetAbsOrigin()
 	end
