@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version
+--version 1.1
 
 local function split(s)
     local t = {}
@@ -12,12 +12,12 @@ end
 local function AutoUpdate(link, already_updated_text, downloading_update_text)
 	local web_content = http.Get(link)
 	local web_content_split = split(web_content)
-	
+	-- print(web_content)
 	local has_autoupdate_sig = web_content_split[1] == "--AW AutoUpdate"
 	
 	if has_autoupdate_sig then
 		local file_content_split = split(file.Read(GetScriptName()))
-		if file_content[2] == web_content_split[2] then
+		if file_content_split[2] == web_content_split[2] then
 			print(already_updated_text)
 		else
 			print(downloading_update_text)
@@ -28,8 +28,10 @@ local function AutoUpdate(link, already_updated_text, downloading_update_text)
 		error("Didn't find 'AW AutoUpdate' signature in '" .. link .. "'")
 	end
 end
-AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/QuickPeek%20%2B%20Teleport.lua", "QuickPeek + Teleport is fully up to date", "QuickPeek + Teleport has been updated, reload the lua.")
-
+AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/QuickPeek%20%2B%20Teleport.lua",
+	"QuickPeek + Teleport is fully up to date",
+	"QuickPeek + Teleport has been updated, reload the lua.")
+	
 local function render(pos, radius)
 	local center = {client.WorldToScreen(Vector3(pos.x, pos.y, pos.z)) }
 	for degrees = 1, 360, 1 do
