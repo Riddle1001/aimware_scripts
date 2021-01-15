@@ -37,9 +37,9 @@ callbacks.Register("Draw", function()
 	end
 end)
 
-AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/QuickPeek%20%2B%20Teleport.lua",
-	"SpeedBurst enable delay is fully up to date",
-	"SpeedBurst enable delay has been updated, reload the lua.")
+AutoUpdate("https://github.com/Aimware0/aimware_scripts/blob/main/Speedburst%20enable%20delay.lua",
+	"Speed Burst enable delay is fully up to date",
+	"Speed Burst enable delay has been updated, reload the lua.")
 	
 
 
