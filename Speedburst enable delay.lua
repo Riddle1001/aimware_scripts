@@ -37,7 +37,7 @@ callbacks.Register("Draw", function()
 	end
 end)
 
-AutoUpdate("https://github.com/Aimware0/aimware_scripts/blob/main/Speedburst%20enable%20delay.lua",
+AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/Speedburst%20enable%20delay.lua",
 	"Speed Burst enable delay is fully up to date",
 	"Speed Burst enable delay has been updated, reload the lua.")
 	
@@ -87,7 +87,7 @@ callbacks.Register("Draw", function()
 		should_restore = false
 	end
 	
-	if speedburst_attempt_fix:GetValue() and input.IsButtonPressed(speedburst_attempt_fix:GetValue()) then
+	if speedburst_attempt_fix:GetValue() ~= 0 and input.IsButtonPressed(speedburst_attempt_fix:GetValue()) then
 		attempt_fix = true
 	end
 	
