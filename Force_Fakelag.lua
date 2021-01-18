@@ -37,7 +37,7 @@ callbacks.Register("Draw", function()
 	end
 end)
 
-AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/Force_Fakelag.lua"),
+AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/Force_Fakelag.lua",
 	"Force Fakelag up to date",
 	"Force Fakelag has been updated, reload the lua")
 
