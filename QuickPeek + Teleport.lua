@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.15
+--version 1.151
 
 local function split(s)
     local t = {}
@@ -108,6 +108,7 @@ local return_pos = nil
 
 local target = nil
 local speedburst_enable = false
+local weapon_fired = false
 
 -- Logic
 callbacks.Register("Draw", function()
@@ -117,6 +118,7 @@ callbacks.Register("Draw", function()
 		is_peeking = false
 		should_return = false
 		return_pos = nil
+		weapon_fired = false
 		return
 	end
 	
@@ -133,17 +135,20 @@ callbacks.Register("Draw", function()
 	if quickpeek_key:GetValue() and input.IsButtonPressed(quickpeek_key:GetValue()) then
 		is_peeking = true
 		return_pos = localplayer:GetAbsOrigin()
+		weapon_fired = false
 	end
 	
 	if quickpeek_return_pos:GetValue() == 0 and quickpeek_key:GetValue() and input.IsButtonReleased(quickpeek_key:GetValue()) then -- Toggle selected and quickpeek key pressed
 		is_peeking = false
 		should_return = false
+		weapon_fired = false
 	end
 	
 	if input.IsButtonPressed(quickpeek_clear_key:GetValue()) then
 		is_peeking = false
 		should_return = false
 		return_pos = nil
+		weapon_fired = false
 	end
 	
 
@@ -181,7 +186,6 @@ callbacks.Register("AimbotTarget", function(t)
 		should_return = true
 	end
 end)
-
 
 callbacks.Register("CreateMove", function(cmd)
 	local localplayer = entities.GetLocalPlayer()
@@ -227,7 +231,7 @@ callbacks.Register("Draw", function()
 	quickpeek_teleport_speedburst_quickpeek_key:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
 	
 	-- Enable speedburst if quickpeek teleport is enabled
-	local enable_speedburst = not should_return and quickpeek_teleport:GetValue() and (quickpeek_teleport_speedburst_quickpeek_key:GetValue() and input.IsButtonDown(quickpeek_key:GetValue())) or not should_return and quickpeek_teleport:GetValue() and not quickpeek_teleport_speedburst_quickpeek_key:GetValue()
+	local enable_speedburst = not weapon_fired and quickpeek_teleport:GetValue() and (quickpeek_teleport_speedburst_quickpeek_key:GetValue() and input.IsButtonDown(quickpeek_key:GetValue())) or not should_return and quickpeek_teleport:GetValue() and not quickpeek_teleport_speedburst_quickpeek_key:GetValue()
 	gui.SetValue("misc.speedburst.enable", enable_speedburst)
 	gui.SetValue("misc.speedburst.indicator", enable_speedburst)
 
@@ -251,7 +255,7 @@ callbacks.Register("FireGameEvent", function(e)
 		local shooter_index = client.GetPlayerIndexByUserID(e:GetInt("userid"))
 		if shooter_index ~= client.GetLocalPlayerIndex() then return end
 		if should_return then
-			-- quickpeek_teleport:SetValue(false)
+			weapon_fired = true
 		end
 		
 	end
