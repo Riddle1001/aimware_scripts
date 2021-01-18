@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.12
+--version 1.15
 
 local function split(s)
     local t = {}
@@ -107,6 +107,7 @@ local should_return = false
 local return_pos = nil
 
 local target = nil
+local speedburst_enable = false
 
 -- Logic
 callbacks.Register("Draw", function()
@@ -134,8 +135,15 @@ callbacks.Register("Draw", function()
 		return_pos = localplayer:GetAbsOrigin()
 	end
 	
-	if quickpeek_return_pos:GetValue() == 0 and input.IsButtonReleased(quickpeek_key:GetValue() or 0) then -- Toggle selected and quickpeek key pressed
+	if quickpeek_return_pos:GetValue() == 0 and quickpeek_key:GetValue() and input.IsButtonReleased(quickpeek_key:GetValue()) then -- Toggle selected and quickpeek key pressed
 		is_peeking = false
+		should_return = false
+	end
+	
+	if input.IsButtonPressed(quickpeek_clear_key:GetValue()) then
+		is_peeking = false
+		should_return = false
+		return_pos = nil
 	end
 	
 
@@ -219,9 +227,9 @@ callbacks.Register("Draw", function()
 	quickpeek_teleport_speedburst_quickpeek_key:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
 	
 	-- Enable speedburst if quickpeek teleport is enabled
-	
-	gui.SetValue("misc.speedburst.enable", quickpeek_teleport:GetValue() and quickpeek_teleport_speedburst_quickpeek_key:GetValue() and input.IsButtonDown(quickpeek_key:GetValue()) or quickpeek_enable:GetValue() and not  quickpeek_teleport_speedburst_quickpeek_key:GetValue())
-	gui.SetValue("misc.speedburst.indicator", quickpeek_teleport:GetValue())
+	local enable_speedburst = not should_return and quickpeek_teleport:GetValue() and (quickpeek_teleport_speedburst_quickpeek_key:GetValue() and input.IsButtonDown(quickpeek_key:GetValue())) or not should_return and quickpeek_teleport:GetValue() and not quickpeek_teleport_speedburst_quickpeek_key:GetValue()
+	gui.SetValue("misc.speedburst.enable", enable_speedburst)
+	gui.SetValue("misc.speedburst.indicator", enable_speedburst)
 
 	
 	quickpeek_method:SetDisabled(quickpeek_teleport:GetValue())
@@ -235,6 +243,18 @@ callbacks.Register("Draw", function()
 	-- else
 		-- max_ticks:SetValue(cached_real_max_ticks)
 	-- end
+end)
+
+client.AllowListener("weapon_fire")
+callbacks.Register("FireGameEvent", function(e)
+	if e and e:GetName() == "weapon_fire" then
+		local shooter_index = client.GetPlayerIndexByUserID(e:GetInt("userid"))
+		if shooter_index ~= client.GetLocalPlayerIndex() then return end
+		if should_return then
+			-- quickpeek_teleport:SetValue(false)
+		end
+		
+	end
 end)
 
 callbacks.Register("Unload", "Chicken.QuickPeek.Unload", function()
