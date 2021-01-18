@@ -37,7 +37,7 @@ callbacks.Register("Draw", function()
 	end
 end)
 
-AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/QuickPeek%20%2B%20Teleport.lua",
+AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/Force_Fakelag.lua"),
 	"Force Fakelag up to date",
 	"Force Fakelag has been updated, reload the lua")
 
@@ -56,12 +56,9 @@ local s_x, s_h = draw.GetScreenSize()
 
 local indicator_x = gui.Slider(fakelag_tab, "Chicken.fakelag_stuff.fakelag_x_indicator", "Fakelag indicator X pos", 100, 1, s_x)
 local indicator_y = gui.Slider(fakelag_tab, "Chicken.fakelag_stuff.fakelag_y_indicator", "Fakelag indicator Y pos", 100, 1, s_h)
- 
+
 
 local weapon_types = { 'shared', 'pistol', 'hpistol', 'smg', 'rifle', 'shotgun', 'asniper', 'lmg' }
-
-local is_fakelag_forced = false
-
 local function get_doubletaps_and_disable()
 	local doubletaps = {}
 	for k, v in pairs(weapon_types) do
@@ -71,8 +68,11 @@ local function get_doubletaps_and_disable()
 	return doubletaps
 end
 
+
 local cached_dt_methods = {}
+local is_fakelag_forced = false
 local dt_restored = false
+
 
 local font = draw.CreateFont("Bahnschrift", 25)
 callbacks.Register("Draw", function()
