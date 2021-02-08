@@ -5,7 +5,6 @@
 -- file.Enumerate(function(filename)
 	-- if filename == "libraries/chickens_glua_timers.lua" then
 		-- notify_lib_installed = true
-		-- print(1)
 	-- end
 -- end)
 
