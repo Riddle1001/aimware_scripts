@@ -1,3 +1,21 @@
+
+-- Download and run the library
+
+-- file.Enumerate(function(filename)
+	-- if filename == "libraries/chickens_notfication.lua" then
+		-- notify_lib_installed = true
+		-- print(1)
+	-- end
+-- end)
+
+-- if not notify_lib_installed then
+	-- local body = http.Get("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/libraries/chickens_notfication.lua")
+	-- file.Write("libraries/chickens_notfication.lua", body)
+-- end
+
+-- RunScript("libraries/chickens_notfication.lua")
+
+
 notify = {
 	notfications = {},
 	prefix = '',
@@ -62,6 +80,3 @@ end)
 -- notify:SetPrefixColor({70, 102, 255})
 
 -- notify:Add("Loaded", 5, true) -- Adds a message to the top left of the screen '[Profiler] Loaded' for 5 seconds then dissapears.
-
-
-
