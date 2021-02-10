@@ -17,11 +17,12 @@ end
 
 RunScript("libraries/base64.lua")
 
-base64.enc(data)
-base64.dec(data)
+
 
 ]]]
 
+--base64.enc(data)
+--base64.dec(data)
 
 local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/' -- You will need this for encoding/decoding
 base64 = {}
