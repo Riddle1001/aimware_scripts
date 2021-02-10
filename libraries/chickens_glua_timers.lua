@@ -1,6 +1,6 @@
 -- https://wiki.facepunch.com/gmod/timer -- Based of the glua timers, somethings changed, and some added, not much though
 
--- Download and run the library
+-- Download and run the library. Place the download code below in your script.
 
 -- file.Enumerate(function(filename)
 	-- if filename == "libraries/chickens_glua_timers.lua" then
