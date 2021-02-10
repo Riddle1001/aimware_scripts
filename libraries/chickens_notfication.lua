@@ -1,19 +1,21 @@
-
 -- Download and run the library. Place the download code below in your script.
 
--- file.Enumerate(function(filename)
-	-- if filename == "libraries/chickens_notfication.lua" then
-		-- notify_lib_installed = true
-	-- end
--- end)
+[[[
 
--- if not notify_lib_installed then
-	-- local body = http.Get("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/libraries/chickens_notfication.lua")
-	-- file.Write("libraries/chickens_notfication.lua", body)
--- end
+file.Enumerate(function(filename)
+	if filename == "libraries/chickens_notfication.lua" then
+		notify_lib_installed = true
+	end
+end)
 
--- RunScript("libraries/chickens_notfication.lua")
+if not notify_lib_installed then
+	local body = http.Get("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/libraries/chickens_notfication.lua")
+	file.Write("libraries/chickens_notfication.lua", body)
+end
 
+RunScript("libraries/chickens_notfication.lua")
+
+]]]
 
 notify = {
 	notfications = {},
