@@ -7,15 +7,19 @@
 
 [[[
 
+local json_lib_installed = false
+
 file.Enumerate(function(filename)
 	if filename == "libraries/json.lua" then
-		notify_lib_installed = true
+		json_lib_installed = true
 	end
 end)
-if not notify_lib_installed then
+
+if not json_lib_installed then
 	local body = http.Get("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/libraries/json.lua")
 	file.Write("libraries/json.lua", body)
 end
+
 RunScript("libraries/json.lua")
 
 ]]]
