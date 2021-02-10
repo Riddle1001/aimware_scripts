@@ -5,7 +5,7 @@
 -- json.encode(table) -- returns string
 -- json.decode(string) -- returns table
 
-[[[
+--[=====[
 
 local json_lib_installed = false
 
@@ -22,8 +22,7 @@ end
 
 RunScript("libraries/json.lua")
 
-]]]
-
+--]=====]
 
 
 
