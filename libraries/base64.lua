@@ -2,7 +2,7 @@
 
 -- Download and run the library. Put this in your script if you wish to use
 
-[[[
+--[=====[ 
 
 local base64_lib_installed = false
 
@@ -19,7 +19,7 @@ end
 
 RunScript("libraries/base64.lua")
 
-]]]
+--]=====]
 
 --base64.enc(data)
 --base64.dec(data)
