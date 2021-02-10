@@ -1,19 +1,23 @@
+
 -- https://wiki.facepunch.com/gmod/timer -- Based of the glua timers, somethings changed, and some added, not much though
 
 -- Download and run the library. Place the download code below in your script.
+[[[
 
--- file.Enumerate(function(filename)
-	-- if filename == "libraries/chickens_glua_timers.lua" then
-		-- notify_lib_installed = true
-	-- end
--- end)
+file.Enumerate(function(filename)
+	if filename == "libraries/chickens_glua_timers.lua" then
+		notify_lib_installed = true
+	end
+end)
 
--- if not notify_lib_installed then
-	-- local body = http.Get("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/libraries/chickens_glua_timers.lua")
-	-- file.Write("libraries/chickens_glua_timers.lua", body)
--- end
+if not notify_lib_installed then
+	local body = http.Get("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/libraries/chickens_glua_timers.lua")
+	file.Write("libraries/chickens_glua_timers.lua", body)
+end
 
--- RunScript("libraries/chickens_glua_timers.lua")
+RunScript("libraries/chickens_glua_timers.lua")
+
+]]]
 
 
 timer = timer or {}
