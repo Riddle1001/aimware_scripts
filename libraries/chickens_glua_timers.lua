@@ -2,7 +2,7 @@
 
 -- Download and run the library. Place the download code below in your script.
 
-[[[
+--[=====[ 
 
 local glua_timers_lib_installed = false
 
@@ -19,7 +19,7 @@ end
 
 RunScript("libraries/chickens_glua_timers.lua")
 
-]]]
+--]=====]
 
 
 timer = timer or {}
