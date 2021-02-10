@@ -33,12 +33,13 @@ function EyeTrace(entity)
     return engine.TraceLine(EyePos(entity), EyePos(entity) + EyeAngles(entity):Forward() * 100000)
 end
 
+
 function GetVelocity(entity)
 	local VelocityX = entity:GetPropFloat( "localdata", "m_vecVelocity[0]" )
 	local VelocityY = entity:GetPropFloat( "localdata", "m_vecVelocity[1]" )
 	local VelocityZ = entity:GetPropFloat( "localdata", "m_vecVelocity[2]" )
 	
-	local speed = math.sqrt(VelocityX^2 + VelocityY^2)
+	return math.sqrt(VelocityX^2 + VelocityY^2)
 end
 
 
