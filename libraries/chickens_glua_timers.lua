@@ -4,15 +4,15 @@
 
 [[[
 
-local notify_lib_installed = false
+local glua_timers_lib_installed = false
 
 file.Enumerate(function(filename)
 	if filename == "libraries/chickens_glua_timers.lua" then
-		notify_lib_installed = true
+		glua_timers_lib_installed = true
 	end
 end)
 
-if not notify_lib_installed then
+if not glua_timers_lib_installed then
 	local body = http.Get("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/libraries/chickens_glua_timers.lua")
 	file.Write("libraries/chickens_glua_timers.lua", body)
 end
