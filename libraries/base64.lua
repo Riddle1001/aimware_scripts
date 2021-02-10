@@ -20,8 +20,9 @@
 
 
 local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/' -- You will need this for encoding/decoding
-
+base64 = {}
 -- encoding
+
 
 function base64.enc(data)
     return ((data:gsub('.', function(x) 
