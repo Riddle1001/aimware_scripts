@@ -2,21 +2,25 @@
 
 -- Download and run the library. Put this in your script if you wish to use
 
--- file.Enumerate(function(filename)
-	-- if filename == "libraries/base64.lua" then
-		-- notify_lib_installed = true
-	-- end
--- end)
+[[[
 
--- if not notify_lib_installed then
-	-- local body = http.Get("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/libraries/base64.lua")
-	-- file.Write("libraries/base64.lua", body)
--- end
+file.Enumerate(function(filename)
+	if filename == "libraries/base64.lua" then
+		notify_lib_installed = true
+	end
+end)
 
--- RunScript("libraries/base64.lua")
+if not notify_lib_installed then
+	local body = http.Get("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/libraries/base64.lua")
+	file.Write("libraries/base64.lua", body)
+end
 
--- base64.enc(data)
--- base64.dec(data)
+RunScript("libraries/base64.lua")
+
+base64.enc(data)
+base64.dec(data)
+
+]]]
 
 
 local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/' -- You will need this for encoding/decoding
