@@ -1,5 +1,5 @@
 
--- Download and run the library
+-- Download and run the library. Place the download code below in your script.
 
 -- file.Enumerate(function(filename)
 	-- if filename == "libraries/chickens_notfication.lua" then
