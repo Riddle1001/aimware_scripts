@@ -4,6 +4,8 @@
 
 [[[
 
+local notify_lib_installed = false
+
 file.Enumerate(function(filename)
 	if filename == "libraries/chickens_glua_timers.lua" then
 		notify_lib_installed = true
