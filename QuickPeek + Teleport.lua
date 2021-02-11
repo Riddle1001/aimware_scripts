@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.16
+--version 1.161
 
 local function split(s)
     local t = {}
@@ -80,7 +80,7 @@ end
 local quickpeek_tab = gui.Tab(gui.Reference("Ragebot"), "Chicken.quickpeek.tab", "Quick peek")
 local quickpeek_gb = gui.Groupbox(quickpeek_tab, "Quickpeek", 15, 15, 605, 0)
 
-local quickpeek_enable = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.enable", "Enable", false)
+local quickpeek_enable = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.enable", "Enable", true)
 
 local quickpeek_method = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.method", "Method", "Slower (reliable)", "Faster (unreliable)")
 local quickpeek_return_pos = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.toggle", "Return position", "Hold", "Toggle")
@@ -89,9 +89,14 @@ local quickpeek_clear_key = gui.Keybox(quickpeek_gb, "Chicken.quickpeek.clear", 
 quickpeek_clear_key:SetPosX(290)
 quickpeek_clear_key:SetPosY(148)
 
-local quickpeek_teleport = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Teleport on peek", false)
-local quickpeek_teleport_speedburst_quickpeek_key  = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Only enable speedburst when QuickPeek key is pressed", false)
+local quickpeek_teleport = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Teleport on peek", true)
+
+local quickpeek_teleport_speedburst_quickpeek_key  = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.only_when_peek", "Only enable speedburst when QuickPeek key is pressed", true)
 quickpeek_teleport_speedburst_quickpeek_key:SetDescription("Allows fakelag while QuickPeek key is not pressed.")
+
+local quickpeek_teleport_speedburst_disable_on_return = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.disable_on_return", "Disable speedburst when returning to peek position", true)
+quickpeek_teleport_speedburst_disable_on_return:SetDescription("Disables speedburst when returning to peek position")
+
 local quickpeek_teleport_maxusrcmdprocessticks = gui.Slider(quickpeek_gb, "Chicken.quickpeek.teleport.", "sv_maxusrcmdprocessticks", 16	, 0, 62)
 quickpeek_teleport_maxusrcmdprocessticks:SetDescription("Adjusting this value may have different effects on teleporting. I use 13.")
 
@@ -175,6 +180,7 @@ callbacks.Register("AimbotTarget", function(t)
 	end
 end)
 
+local weapon_fired_at = 0
 callbacks.Register("CreateMove", function(cmd)
 	local localplayer = entities.GetLocalPlayer()
 	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
@@ -182,8 +188,13 @@ callbacks.Register("CreateMove", function(cmd)
 	if not quickpeek_enable:GetValue() then return end -- or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then return end
 	
 	
-	if quickpeek_method:GetValue() == 0 and cmd.buttons == 4194305 and is_peeking then
-		should_return = true
+	if cmd.buttons == 4194305 then
+		weapon_fired = true
+		if quickpeek_method:GetValue() == 0 and is_peeking then
+			should_return = true
+			weapon_fired_at = globals.TickCount()
+		end
+
 	end
 	
 	if should_return and return_pos then
@@ -203,51 +214,53 @@ callbacks.Register("CreateMove", function(cmd)
 end)
 
 -- UI
+local menu = gui.Reference("Menu")
 callbacks.Register("Draw", function()
-
-	-- Set visibility if quickpeek is enabled
-	quickpeek_method:SetInvisible(not quickpeek_enable:GetValue())
-	quickpeek_return_pos:SetInvisible(not quickpeek_enable:GetValue())
-	quickpeek_key:SetInvisible(not quickpeek_enable:GetValue())
-	quickpeek_clear_key:SetInvisible(not quickpeek_enable:GetValue())
-	quickpeek_teleport:SetInvisible(not quickpeek_enable:GetValue())
-	quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue())
-	quickpeek_clear_key:SetDisabled(quickpeek_return_pos:GetValue() == 0 and true)
 	
-	-- Set visibility to maxusrcmdprocessesticks and speedburst on quickpeek key, if teleport on peek enbaled
-	quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
-	quickpeek_teleport_speedburst_quickpeek_key:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
+	if menu:IsActive() then -- thx Cheesot
+		-- Set visibility if quickpeek is enabled
+		quickpeek_method:SetInvisible(not quickpeek_enable:GetValue())
+		quickpeek_return_pos:SetInvisible(not quickpeek_enable:GetValue())
+		quickpeek_key:SetInvisible(not quickpeek_enable:GetValue())
+		quickpeek_clear_key:SetInvisible(not quickpeek_enable:GetValue())
+		quickpeek_teleport:SetInvisible(not quickpeek_enable:GetValue())
+		quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue())
+		quickpeek_clear_key:SetDisabled(quickpeek_return_pos:GetValue() == 0 and true)
+		
+		-- Set visibility to maxusrcmdprocessesticks and speedburst on quickpeek key, if teleport on peek enbaled
+		quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
+		quickpeek_teleport_speedburst_quickpeek_key:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
+	end
+	
 	
 	-- Enable speedburst if quickpeek teleport is enabled
-	local enable_speedburst = not weapon_fired and quickpeek_teleport:GetValue() and (quickpeek_teleport_speedburst_quickpeek_key:GetValue() and input.IsButtonDown(quickpeek_key:GetValue())) or not should_return and quickpeek_teleport:GetValue() and not quickpeek_teleport_speedburst_quickpeek_key:GetValue()
-	gui.SetValue("misc.speedburst.enable", enable_speedburst)
-	gui.SetValue("misc.speedburst.indicator", enable_speedburst)
-
+	-- local enable_speedburst = not weapon_fired and quickpeek_teleport:GetValue() and -- Checks if weapon was fired AND teleport on quickpeek is enabled
+	-- (quickpeek_teleport_speedburst_quickpeek_key:GetValue() and input.IsButtonDown(quickpeek_key:GetValue())) or -- Checks if only enable speedburst on quickpeek key check box is enabled AND quickpeek key is down
+	-- not should_return and quickpeek_teleport:GetValue() and not quickpeek_teleport_speedburst_quickpeek_key:GetValue() -- Checks if should_return is false and teleport on quick peek is enabled AND 
 	
-	quickpeek_method:SetDisabled(quickpeek_teleport:GetValue())
+	local enable_speedburst = false -- I can't be arsed trying to make this a ternary operator type thing again, to hard to read
 	if quickpeek_teleport:GetValue() then
-		quickpeek_method:SetValue(1)
-	end
-	
-	-- if localplayer and localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 40 or localplayer:GetPropEntity("m_hActiveWeapon"):GetWeaponID() == 9 then
-	-- local localplayer = entities.GetLocalPlayer()
-		max_ticks:SetValue(quickpeek_teleport:GetValue() and quickpeek_teleport_maxusrcmdprocessticks:GetValue() or 16)
-	-- else
-		-- max_ticks:SetValue(cached_real_max_ticks)
-	-- end
-end)
-
-client.AllowListener("weapon_fire")
-callbacks.Register("FireGameEvent", function(e)
-	if e and e:GetName() == "weapon_fire" then
-		local shooter_index = client.GetPlayerIndexByUserID(e:GetInt("userid"))
-		if shooter_index ~= client.GetLocalPlayerIndex() then return end
-		if should_return then
-			weapon_fired = true
+		enable_speedburst = true
+		
+		if quickpeek_teleport_speedburst_quickpeek_key:GetValue() then
+			enable_speedburst = input.IsButtonDown(quickpeek_key:GetValue())
 		end
 		
+		if quickpeek_teleport_speedburst_disable_on_return:GetValue() and should_return and weapon_fired then
+			if globals.TickCount() - weapon_fired_at >= 5 then -- Needs before shutting off speedburst otherwise speedburst wont activate
+				enable_speedburst = false
+			end
+		end
 	end
+	
+	gui.SetValue("misc.speedburst.enable", enable_speedburst)
+	gui.SetValue("misc.speedburst.indicator", enable_speedburst)
+	
+	max_ticks:SetValue(quickpeek_teleport:GetValue() and quickpeek_teleport_maxusrcmdprocessticks:GetValue() or 16)
+
 end)
+
+
 
 callbacks.Register("Unload", "Chicken.QuickPeek.Unload", function()
 	max_ticks:SetValue(cached_real_max_ticks)
