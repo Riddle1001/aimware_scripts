@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.163
+--version 1.164
 
 local function split(s)
     local t = {}
@@ -42,31 +42,31 @@ AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/Quic
 	"QuickPeek + Teleport has been updated, reload the lua.")
 	
 
-local function render(pos, radius, color)
+local function render(pos, radius, color) -- thx Cheeseot for saving everyone using this script 40~ fps!
 	local center = {client.WorldToScreen(Vector3(pos.x, pos.y, pos.z)) }
-	for degrees = 1, 360, 1 do
+	for degrees = 1, 20, 1 do
+        
+        local cur_point = nil;
+        local old_point = nil;
 
-		local cur_point = nil;
-		local old_point = nil;
-
-		if pos.z == nil then
-			cur_point = {pos.x + math.sin(math.rad(degrees)) * radius, pos.y + math.cos(math.rad(degrees)) * radius}; 
-			old_point = {pos.x + math.sin(math.rad(degrees - 1)) * radius, pos.y + math.cos(math.rad(degrees - 1)) * radius};
-		else
-			cur_point = {client.WorldToScreen(Vector3(pos.x + math.sin(math.rad(degrees)) * radius, pos.y + math.cos(math.rad(degrees)) * radius, pos.z))};
-			old_point = {client.WorldToScreen(Vector3(pos.x + math.sin(math.rad(degrees - 1)) * radius, pos.y + math.cos(math.rad(degrees - 1)) * radius, pos.z))};
-		end
-
-		if cur_point[1] and cur_point[2] and old_point[1] and old_point[2] and center[1] and center[2] then 
-			-- fill
-			draw.Color(color.r,color.g,color.b,color.a)
-
-			draw.Triangle(cur_point[1], cur_point[2], old_point[1], old_point[2], center[1], center[2])
-			-- outline
-			-- draw.Color(255,0,0)
-			draw.Line(cur_point[1], cur_point[2], old_point[1], old_point[2]); 
-		end
-	end
+        if pos.z == nil then
+            cur_point = {pos.x + math.sin(math.rad(degrees * 18)) * radius, pos.y + math.cos(math.rad(degrees * 18)) * radius};    
+            old_point = {pos.x + math.sin(math.rad(degrees * 18 - 18)) * radius, pos.y + math.cos(math.rad(degrees * 18 - 18)) * radius};
+        else
+            cur_point = {client.WorldToScreen(Vector3(pos.x + math.sin(math.rad(degrees * 18)) * radius, pos.y + math.cos(math.rad(degrees * 18)) * radius, pos.z))};
+            old_point = {client.WorldToScreen(Vector3(pos.x + math.sin(math.rad(degrees * 18 - 18)) * radius, pos.y + math.cos(math.rad(degrees * 18 - 18)) * radius, pos.z))};
+        end
+                    
+        if cur_point[1] ~= nil and cur_point[2] ~= nil and old_point[1] ~= nil and old_point[2] ~= nil and center[1] ~= nil and center [2] ~= nil then        
+            -- fill
+            draw.Color(color.r, color.g, color.b, color.a)
+            draw.Triangle(cur_point[1], cur_point[2], old_point[1], old_point[2], center[1], center[2])
+            -- outline
+            -- draw.Color(ui_color_picker:GetValue())
+            draw.Line(cur_point[1], cur_point[2], old_point[1], old_point[2]);        
+        end
+       
+    end
 end
 
 function move_to_pos(pos, cmd, speed)
@@ -80,21 +80,22 @@ end
 local quickpeek_tab = gui.Tab(gui.Reference("Ragebot"), "Chicken.quickpeek.tab", "Quick peek")
 local quickpeek_gb = gui.Groupbox(quickpeek_tab, "Quickpeek", 15, 15, 605, 0)
 
-local quickpeek_enable = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.enable", "Enable", true)
+local quickpeek_enable = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.enable", "Enable", false)
 
 local quickpeek_method = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.method", "Method", "Slower (reliable)", "Faster (unreliable)")
 local quickpeek_return_pos = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.toggle", "Return position", "Hold", "Toggle")
 local quickpeek_key = gui.Keybox(quickpeek_gb, "Chicken.quickpeek.key", "Quick peek key", 5)
-local quickpeek_clear_key = gui.Keybox(quickpeek_gb, "Chicken.quickpeek.clear", "Clear quick peek key", 6)
-quickpeek_clear_key:SetPosX(290)
-quickpeek_clear_key:SetPosY(148)
+quickpeek_key:SetWidth(1145)
+-- local quickpeek_clear_key = gui.Keybox(quickpeek_gb, "Chicken.quickpeek.clear", "Clear quick peek key", 6)
+-- quickpeek_clear_key:SetPosX(290)
+-- quickpeek_clear_key:SetPosY(148)
 
-local quickpeek_teleport = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Teleport on peek", true)
+local quickpeek_teleport = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Teleport on peek", false)
 
-local quickpeek_teleport_speedburst_quickpeek_key  = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.only_when_peek", "Only enable speedburst when QuickPeek key is pressed", true)
+local quickpeek_teleport_speedburst_quickpeek_key  = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.only_when_peek", "Only enable speedburst when QuickPeek key is pressed", false)
 quickpeek_teleport_speedburst_quickpeek_key:SetDescription("Allows fakelag while QuickPeek key is not pressed.")
 
-local quickpeek_teleport_speedburst_disable_on_return = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.disable_on_return", "Disable speedburst when returning to peek position", true)
+local quickpeek_teleport_speedburst_disable_on_return = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.disable_on_return", "Disable speedburst when returning to peek position", false)
 quickpeek_teleport_speedburst_disable_on_return:SetDescription("Disables speedburst when returning to peek position")
 
 local quickpeek_teleport_maxusrcmdprocessticks = gui.Slider(quickpeek_gb, "Chicken.quickpeek.teleport.", "sv_maxusrcmdprocessticks", 16	, 0, 62)
@@ -137,23 +138,32 @@ callbacks.Register("Draw", function()
 	
 
 	
-	if quickpeek_key:GetValue() and input.IsButtonPressed(quickpeek_key:GetValue()) then
+	if quickpeek_key:GetValue() and quickpeek_return_pos:GetValue() == 0 and input.IsButtonPressed(quickpeek_key:GetValue()) then
 		is_peeking = true
 		return_pos = localplayer:GetAbsOrigin()
 		weapon_fired = false
 	end
 	
-	if quickpeek_return_pos:GetValue() == 0 and quickpeek_key:GetValue() and input.IsButtonReleased(quickpeek_key:GetValue()) then -- Toggle selected and quickpeek key pressed
+	if quickpeek_return_pos:GetValue() == 0 and quickpeek_key:GetValue() and input.IsButtonReleased(quickpeek_key:GetValue()) then -- Hold selected and quickpeek key released
 		is_peeking = false
 		should_return = false
 		weapon_fired = false
 	end
 	
-	if input.IsButtonPressed(quickpeek_clear_key:GetValue()) then
-		is_peeking = false
-		should_return = false
-		return_pos = nil
-		weapon_fired = false
+	-- print(quickpeek_return_pos:GetValue(), input.IsButtonPressed(quickpeek_key:GetValue()))
+	if quickpeek_return_pos:GetValue() == 1 and input.IsButtonPressed(quickpeek_key:GetValue()) then -- Toggle selected
+		print(1)
+		if return_pos then
+			is_peeking = false
+			should_return = false
+			return_pos = nil
+			weapon_fired = false
+		else
+			is_peeking = true
+			return_pos = localplayer:GetAbsOrigin()
+			weapon_fired = false
+		end
+		
 	end
 	
 
@@ -209,9 +219,10 @@ callbacks.Register("CreateMove", function(cmd)
 		local dist = vector.Distance({my_pos.x, my_pos.y, my_pos.z}, {return_pos.x, return_pos.y, return_pos.z})
 		if dist < 5 then
 			should_return = false
-			
+			weapon_fired = false
 			if quickpeek_return_pos:GetValue() == 0 then
-				return_pos = nil		
+				return_pos = nil
+				
 			end
 		end
 	end
@@ -226,10 +237,10 @@ callbacks.Register("Draw", function()
 		quickpeek_method:SetInvisible(not quickpeek_enable:GetValue())
 		quickpeek_return_pos:SetInvisible(not quickpeek_enable:GetValue())
 		quickpeek_key:SetInvisible(not quickpeek_enable:GetValue())
-		quickpeek_clear_key:SetInvisible(not quickpeek_enable:GetValue())
+		-- quickpeek_clear_key:SetInvisible(not quickpeek_enable:GetValue())
 		quickpeek_teleport:SetInvisible(not quickpeek_enable:GetValue())
 		quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue())
-		quickpeek_clear_key:SetDisabled(quickpeek_return_pos:GetValue() == 0 and true)
+		-- quickpeek_clear_key:SetDisabled(quickpeek_return_pos:GetValue() == 0 and true)
 		
 		-- Set visibility to maxusrcmdprocessesticks and speedburst on quickpeek key, if teleport on peek enbaled
 		quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
