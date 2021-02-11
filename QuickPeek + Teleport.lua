@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.1651
+--version 1.1652
 
 
 local function split(s)
@@ -153,7 +153,6 @@ callbacks.Register("Draw", function()
 	
 	-- print(quickpeek_return_pos:GetValue(), input.IsButtonPressed(quickpeek_key:GetValue()))
 	if quickpeek_return_pos:GetValue() == 1 and input.IsButtonPressed(quickpeek_key:GetValue()) then -- Toggle selected
-		print(1)
 		if return_pos then
 			is_peeking = false
 			should_return = false
@@ -248,6 +247,8 @@ callbacks.Register("Draw", function()
 		quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
 		quickpeek_teleport_speedburst_quickpeek_key:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
 		quickpeek_teleport_speedburst_disable_on_return:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
+		
+		
 	end
 	
 	
@@ -261,14 +262,25 @@ callbacks.Register("Draw", function()
 		enable_speedburst = true
 		
 		if quickpeek_teleport_speedburst_quickpeek_key:GetValue() then
-			enable_speedburst = input.IsButtonDown(quickpeek_key:GetValue())
+			if quickpeek_return_pos:GetValue() == 1 then
+				if return_pos then
+					enable_speedburst = true
+				else
+					enable_speedburst = false
+				end
+			else
+				enable_speedburst = input.IsButtonDown(quickpeek_key:GetValue())
+			end
 		end
 		
 		if quickpeek_teleport_speedburst_disable_on_return:GetValue() and should_return and weapon_fired then
 			if globals.TickCount() - weapon_fired_at >= 5 then -- Needs before shutting off speedburst otherwise speedburst wont activate
-				enable_speedburst = false
+				enable_speedburst = is_peeking and not should_return
 			end
 		end
+		
+		
+		
 	end
 	
 	gui.SetValue("misc.speedburst.enable", enable_speedburst)
