@@ -1,5 +1,6 @@
 --AW AutoUpdate
---version 1.164
+--version 1.165
+
 
 local function split(s)
     local t = {}
@@ -235,6 +236,7 @@ callbacks.Register("Draw", function()
 	if menu:IsActive() then -- thx Cheesot
 		-- Set visibility if quickpeek is enabled
 		quickpeek_method:SetInvisible(not quickpeek_enable:GetValue())
+		
 		quickpeek_return_pos:SetInvisible(not quickpeek_enable:GetValue())
 		quickpeek_key:SetInvisible(not quickpeek_enable:GetValue())
 		-- quickpeek_clear_key:SetInvisible(not quickpeek_enable:GetValue())
@@ -245,6 +247,7 @@ callbacks.Register("Draw", function()
 		-- Set visibility to maxusrcmdprocessesticks and speedburst on quickpeek key, if teleport on peek enbaled
 		quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
 		quickpeek_teleport_speedburst_quickpeek_key:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
+		quickpeek_teleport_speedburst_disable_on_return:SetInvisible(not quickpeek_enable:GetValue() or not quickpeek_teleport:GetValue())
 	end
 	
 	
