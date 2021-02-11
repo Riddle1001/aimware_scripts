@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.162
+--version 1.163
 
 local function split(s)
     local t = {}
