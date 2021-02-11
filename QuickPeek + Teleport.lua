@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.161
+--version 1.162
 
 local function split(s)
     local t = {}
@@ -42,7 +42,7 @@ AutoUpdate("https://raw.githubusercontent.com/Aimware0/aimware_scripts/main/Quic
 	"QuickPeek + Teleport has been updated, reload the lua.")
 	
 
-local function render(pos, radius)
+local function render(pos, radius, color)
 	local center = {client.WorldToScreen(Vector3(pos.x, pos.y, pos.z)) }
 	for degrees = 1, 360, 1 do
 
@@ -59,7 +59,7 @@ local function render(pos, radius)
 
 		if cur_point[1] and cur_point[2] and old_point[1] and old_point[2] and center[1] and center[2] then 
 			-- fill
-			draw.Color(255,255,255, 200)
+			draw.Color(color.r,color.g,color.b,color.a)
 
 			draw.Triangle(cur_point[1], cur_point[2], old_point[1], old_point[2], center[1], center[2])
 			-- outline
@@ -158,7 +158,11 @@ callbacks.Register("Draw", function()
 	
 
 	if is_peeking and return_pos then
-		render(return_pos, 12)
+		if should_return then
+			render(return_pos, 12, {r = 200, g = 240, b = 200, a = 200})
+		else
+			render(return_pos, 12, {r = 240, g = 200, b = 200, a = 200})
+		end
 	end
 	
 	if should_return then
