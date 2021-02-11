@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.151
+--version 1.16
 
 local function split(s)
     local t = {}
@@ -157,19 +157,7 @@ callbacks.Register("Draw", function()
 	end
 	
 	if should_return then
-		local mov_key = 0
-		if input.IsButtonDown("W") then
-		   mov_key = 87
-		elseif input.IsButtonDown("A") then
-			mov_key = 65
-		elseif input.IsButtonDown("S") then
-			mov_key = 83
-		elseif input.IsButtonDown("D") then
-			mov_key = 68
-		end
-		gui.SetValue("misc.speedburst.key", mov_key)
-	else
-		gui.SetValue("misc.speedburst.key", cached_speedburst_key)
+		cheat.RequestSpeedBurst()
 	end
 end)
 
