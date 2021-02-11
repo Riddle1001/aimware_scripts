@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.165
+--version 1.1651
 
 
 local function split(s)
@@ -97,10 +97,10 @@ local quickpeek_teleport_speedburst_quickpeek_key  = gui.Checkbox(quickpeek_gb, 
 quickpeek_teleport_speedburst_quickpeek_key:SetDescription("Allows fakelag while QuickPeek key is not pressed.")
 
 local quickpeek_teleport_speedburst_disable_on_return = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.disable_on_return", "Disable speedburst when returning to peek position", false)
-quickpeek_teleport_speedburst_disable_on_return:SetDescription("Disables speedburst when returning to peek position")
+quickpeek_teleport_speedburst_disable_on_return:SetDescription("Disables speedburst when returning to peek position.")
 
 local quickpeek_teleport_maxusrcmdprocessticks = gui.Slider(quickpeek_gb, "Chicken.quickpeek.teleport.", "sv_maxusrcmdprocessticks", 16	, 0, 62)
-quickpeek_teleport_maxusrcmdprocessticks:SetDescription("Adjusting this value may have different effects on teleporting. I use 13.")
+quickpeek_teleport_maxusrcmdprocessticks:SetDescription("Adjusting this value may have different effects on teleporting.")
 
 local max_ticks = gui.Reference("Misc", "General", "Server", "sv_maxusrcmdprocessticks")
 
