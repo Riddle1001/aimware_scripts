@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.1652
+--version 1.166
 
 
 local function split(s)
@@ -83,8 +83,12 @@ local quickpeek_gb = gui.Groupbox(quickpeek_tab, "Quickpeek", 15, 15, 605, 0)
 
 local quickpeek_enable = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.enable", "Enable", false)
 
-local quickpeek_method = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.method", "Method", "Slower (reliable)", "Faster (unreliable)")
+local quickpeek_method = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.method", "Method", "Faster (AimbotTarget, unreliable)", "Slower (cmd.buttons)" , "Slow (weapon_fire)", "Slowest (bullet_impact)")
+quickpeek_method:SetDescription("The method to be used to detect local weapon fire.")
+
 local quickpeek_return_pos = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.toggle", "Return position", "Hold", "Toggle")
+-- quickpeek_return_pos:SetDescription("The method to be used to detect local weapon fire.")
+
 local quickpeek_key = gui.Keybox(quickpeek_gb, "Chicken.quickpeek.key", "Quick peek key", 5)
 quickpeek_key:SetWidth(1145)
 -- local quickpeek_clear_key = gui.Keybox(quickpeek_gb, "Chicken.quickpeek.clear", "Clear quick peek key", 6)
@@ -116,9 +120,11 @@ local return_pos = nil
 local target = nil
 local speedburst_enable = false
 local weapon_fired = false
+local speedbursted = false
 
 -- Logic
 callbacks.Register("Draw", function()
+	if not quickpeek_enable:GetValue() then return end
 	local localplayer = entities.GetLocalPlayer()
 	
 	if not localplayer or not localplayer:IsAlive() then
@@ -128,9 +134,7 @@ callbacks.Register("Draw", function()
 		weapon_fired = false
 		return
 	end
-	
-	local weapon = localplayer:GetPropEntity("m_hActiveWeapon")
-	
+
 	if not quickpeek_enable:GetValue() then -- or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then
 		max_ticks:SetValue(cached_real_max_ticks)
 		gui.SetValue("misc.speedburst.key", cached_speedburst_key)
@@ -149,6 +153,7 @@ callbacks.Register("Draw", function()
 		is_peeking = false
 		should_return = false
 		weapon_fired = false
+		speedbursted = false
 	end
 	
 	-- print(quickpeek_return_pos:GetValue(), input.IsButtonPressed(quickpeek_key:GetValue()))
@@ -175,13 +180,13 @@ callbacks.Register("Draw", function()
 		end
 	end
 	
-	if should_return then
+	if should_return and not speedbursted then
+		speedbursted = true
 		cheat.RequestSpeedBurst()
 	end
 end)
 
-
-
+cheat.RequestSpeedBurst()
 callbacks.Register("AimbotTarget", function(t)
 
 	local localplayer = entities.GetLocalPlayer()
@@ -189,7 +194,7 @@ callbacks.Register("AimbotTarget", function(t)
 	
 	if not quickpeek_enable:GetValue() then return end--or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then return end
 
-	if quickpeek_method:GetValue() == 1 and t:GetIndex() and is_peeking then
+	if quickpeek_method:GetValue() == 0 and t:GetIndex() and is_peeking then
 		should_return = true
 	end
 end)
@@ -204,7 +209,7 @@ callbacks.Register("CreateMove", function(cmd)
 	
 	if cmd.buttons == 4194305 then
 		weapon_fired = true
-		if quickpeek_method:GetValue() == 0 and is_peeking then
+		if quickpeek_method:GetValue() == 1 and is_peeking then
 			should_return = true
 			weapon_fired_at = globals.TickCount()
 		end
@@ -220,6 +225,7 @@ callbacks.Register("CreateMove", function(cmd)
 		if dist < 5 then
 			should_return = false
 			weapon_fired = false
+			speedbursted = false
 			if quickpeek_return_pos:GetValue() == 0 then
 				return_pos = nil
 				
@@ -230,6 +236,9 @@ end)
 
 -- UI
 local menu = gui.Reference("Menu")
+
+
+
 callbacks.Register("Draw", function()
 	
 	if menu:IsActive() then -- thx Cheesot
@@ -251,7 +260,7 @@ callbacks.Register("Draw", function()
 		
 	end
 	
-	
+	if not quickpeek_enable:GetValue() then return end
 	-- Enable speedburst if quickpeek teleport is enabled
 	-- local enable_speedburst = not weapon_fired and quickpeek_teleport:GetValue() and -- Checks if weapon was fired AND teleport on quickpeek is enabled
 	-- (quickpeek_teleport_speedburst_quickpeek_key:GetValue() and input.IsButtonDown(quickpeek_key:GetValue())) or -- Checks if only enable speedburst on quickpeek key check box is enabled AND quickpeek key is down
@@ -289,7 +298,34 @@ callbacks.Register("Draw", function()
 	max_ticks:SetValue(quickpeek_teleport:GetValue() and quickpeek_teleport_maxusrcmdprocessticks:GetValue() or 16)
 
 end)
-
+client.AllowListener("weapon_fire")
+client.AllowListener("bullet impact")
+callbacks.Register("FireGameEvent", function(e)
+	if e then
+		if e:GetName() == "weapon_fire" and quickpeek_method:GetValue() == 2 then
+			local shooter_index = client.GetPlayerIndexByUserID(e:GetInt("userid"))
+			if shooter_index ~= client.GetLocalPlayerIndex() then return end
+		
+			weapon_fired = true
+			weapon_fired_at = globals.TickCount()
+			should_return = true
+			
+			if is_peeking then
+				should_return = true
+			end
+		elseif e:GetName() == "bullet_impact" and quickpeek_method:GetValue() == 3 then
+			local shooter_index = client.GetPlayerIndexByUserID(e:GetInt("userid"))
+			if shooter_index ~= client.GetLocalPlayerIndex() then return end
+		
+			weapon_fired = true
+			weapon_fired_at = globals.TickCount()
+			if is_peeking then
+				should_return = true
+			end
+		end
+	
+	end
+end)
 
 
 callbacks.Register("Unload", "Chicken.QuickPeek.Unload", function()
