@@ -58,7 +58,9 @@ local function get_saved_walkbot_data(index)
 	end
 end
 
+
 local wb_config_selector = gui.Combobox(wb_config_gb, "Chicken.WalkBot.Config.Selection", "Walkbot config", unpack(get_saved_walkbot_names()) or "")
+wb_config_selector:SetOptions(unpack(get_saved_walkbot_names()))
 local wb_config_entry = gui.Editbox(wb_config_gb, "Chicken.WalkBot.Config.name", "Config name")
 
 
@@ -113,7 +115,10 @@ ui_text.wb_record_text:SetPosX(29)
 local wb_defualt_speed = gui.Slider(wb_settings_gb, "Chicken.Walkbot.defualtspeed", "Default walk speed", 250, 1, 300)
 local wb_aimbot_speed = gui.Slider(wb_settings_gb, "Chicken.Walkbot.aimbotspeed", "Walk speed when aimbotting", 36, 1, 300)
 local wb_step_size = gui.Slider(wb_settings_gb, "Chicken.Walkbot.stepsize", "Stepsize", 20, 5, 200)
-wb_step_size:SetDescription("When recording, this sets the distance you need to be from point 1 from point 2")
+wb_step_size:SetDescription("When recording, this sets the distance you need to be from point 1 from point 2.")
+
+local wb_to_nearest_point_on_death = gui.Checkbox(wb_settings_gb, "Chicken.WalkBot.walk_to_nearest_point_on_death", "Walk to nearest point on respawn.", true)
+wb_to_nearest_point_on_death:SetDescription("Walks to the nearest walk bot location when you respawn")
 
 
 local function table_to_v3(tbl)
@@ -160,6 +165,7 @@ ChickenWalkBot = {
 			if self.play_index >= #self.walk_data then
 				self.play_index = 1
 			end
+			print(self.play_index)
 			local my_pos = entities.GetLocalPlayer():GetAbsOrigin()
 			self.move_to_pos(table_to_v3(self.walk_data[self.play_index]), cmd, has_target and self.aimbot_speed or self.defualt_speed)
 			local dist = math.sqrt(math.pow(self.walk_data[self.play_index].x - my_pos.x, 2) + math.pow(self.walk_data[self.play_index].y - my_pos.y, 2))
@@ -169,9 +175,23 @@ ChickenWalkBot = {
 		end
 	end,
 		
-	save = function()
-		-- local contents = json.decode(file.Read(file_name))
+	get_nearest_point = function(self)
+		local closest_dist = math.huge
+		local closest_point = nil
+		local closest_point_index = 1
+		local my_pos = entities.GetLocalPlayer():GetAbsOrigin()
 		
+		for i, v in ipairs(self.walk_data) do
+			-- print(v.x)
+			local dist = vector.Distance({v.x, v.y, v.z}, {my_pos.x, my_pos.y, my_pos.z})
+			if dist < closest_dist then
+				closest_dist = dist
+				closest_point_index = i
+				closest_point = v
+			end
+		end
+		
+		return closest_point, closest_point_index
 	end,
 	
 	open = function() end,
@@ -252,16 +272,32 @@ callbacks.Register("CreateMove", function(cmd)
 	end
 end)
 
-
-
-client.AllowListener("player_death")
+local me_spawned = false
+local me_spawned_time = globals.CurTime()
+client.AllowListener("player_spawn")
 callbacks.Register("FireGameEvent", function(e)
-	if e and e:GetName() == "player_death" then
+	if e and e:GetName() == "player_spawn" then
 		local dead_guy = client.GetPlayerIndexByUserID(e:GetInt("userid"))
-		if client.GetLocalPlayerIndex() == dead_guy then ChickenWalkBot.play_index = 1 
+		if client.GetLocalPlayerIndex() == dead_guy then 
 			alive_time = globals.CurTime()
 			scoped = false
+			
+			if wb_to_nearest_point_on_death:GetValue() then
+				me_spawned = true
+				me_spawned_time = globals.CurTime()
+			else
+				ChickenWalkBot.play_index = 1
+			end
+
 		end
+	end
+end)
+
+callbacks.Register("Draw", function()
+	if me_spawned and globals.CurTime() > me_spawned_time + 0.5 then
+		local _, closest_point_index = ChickenWalkBot:get_nearest_point()
+		ChickenWalkBot.play_index = closest_point_index
+		me_spawned = false
 	end
 end)
 
