@@ -50,3 +50,4 @@ callbacks.Register("CreateMove", function(cmd)
 		native_edgejump_key:SetValue(cached_native_edgejump_key)
 	end
 end)
+
