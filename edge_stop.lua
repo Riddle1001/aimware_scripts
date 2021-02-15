@@ -1,3 +1,6 @@
+-- Basically rebinds the edge jump key to to the edge stop key, when the edge stop key is pressed.
+-- So when you're about to go off a edge, the cheat will try to jump, but the script detects and blocks the jump and stops you in your place.
+
 function hasbit(x, p)
     return x % (p + p) >= p      
 end
