@@ -150,7 +150,7 @@ debug_point_scale_amount:SetDescription("Increasing this number will impact your
 
 local debug_hitbox_text = gui.Text(debug_window, "Hitboxes to check if the player is visible or not (You  can save FPS by checking less hitboxes)")
 
-local debug_hitbox_head = gui.Checkbox(debug_window, "Chicken.dynamic_min_dmg.debug.hitbox_head", "Head", false)
+local debug_hitbox_head = gui.Checkbox(debug_window, "Chicken.dynamic_min_dmg.debug.hitbox_head", "Head", true)
 local debug_hitbox_chest = gui.Checkbox(debug_window, "Chicken.dynamic_min_dmg.debug.hitbox_chest", "Chest", true)
 local debug_hitbox_pelvis = gui.Checkbox(debug_window, "Chicken.dynamic_min_dmg.debug.hitbox_Pelvis", "Pevlis", true)
 
@@ -263,7 +263,7 @@ callbacks.Register("Draw", function()
 
 	local LocalPlayer = entities.GetLocalPlayer()
 	
-	if not LocalPlayer then return end
+	if not LocalPlayer or not LocalPlayer:IsAlive() then return end
 	
 	local my_pos = LocalPlayer:GetAbsOrigin()
 	local prediction = predict_velocity(LocalPlayer, debug_prediction_amount:GetValue())
