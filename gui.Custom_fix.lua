@@ -60,6 +60,7 @@ end
 
 
 function paint(x,y,x2,y2, active, self)
+	--self.custom_vars.has_focus
 	if self:GetValue() == "1" then
 		draw.Color(255,0,0)
 		draw.FilledRect( x, y, x2, y2 )
