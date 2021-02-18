@@ -45,7 +45,7 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint)
 		end,
 	}
 	
-	function _paint(x, y, x2, y2, active)
+	local function _paint(x, y, x2, y2, active)
 		paint(x, y, x2, y2, active, GuiObject)
 	end
 	
