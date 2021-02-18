@@ -1,4 +1,4 @@
--- Made so you can add callbacks on to GuiObjects that can be modifed by the user
+-- Made so you can add callbacks on to GuiObjects
 
 function table.slice(tbl, first, last, step)
   local sliced = {}
