@@ -1,4 +1,5 @@
-function gui._Custom(ref, varname, name, x, y, w, h, paint)
+
+function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 	local tbl = {val = 0}
 
 	local function read(v)
@@ -11,7 +12,7 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint)
 	
 	local GuiObject = {
 		element = nil,
-		
+		custom_vars = custom_vars or {},
 		name = name,
 		
 		GetValue = function(self)
