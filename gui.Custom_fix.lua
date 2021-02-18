@@ -78,7 +78,7 @@ function gui.Example(ref, varname, name, x, y, w, h)
 	return gui._Custom(ref, varname, name, x, y, w, h, paint)
 end
 
-local example = gui.Example(gui.Reference("Ragebot", "Aimbot", "Toggle"), "var name", "Name", 10, 10, 20, 20)
+local example = gui.Example(gui.Reference("Ragebot", "Aimbot", "Toggle"), "var name", "1", 10, 10, 20, 20)
 
 local delay = 0
 callbacks.Register("Draw", function()
