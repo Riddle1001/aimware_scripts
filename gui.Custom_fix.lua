@@ -1,4 +1,5 @@
-function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars) -- the custom_vars tbl is very useful, lets you use custom vars for each object, within the paint callback.
+function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars) -- the custom_vars tbl is very useful, lets you use custom vars for each object,
+	--within the paint callback.
 	local tbl = {val = 0}
 
 	local function read(v)
