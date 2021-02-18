@@ -41,7 +41,7 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint)
 		end,
 		
 		SetVisible = function(self, b)
-			self.element:SetInvisible(b)
+			self.element:SetInvisible(not b)
 		end,
 	}
 	
