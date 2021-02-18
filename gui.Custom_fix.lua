@@ -1,4 +1,3 @@
-
 function gui._Custom(ref, varname, name, x, y, w, h, paint)
 	local tbl = {val = 0}
 
