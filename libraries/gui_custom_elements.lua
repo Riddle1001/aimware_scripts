@@ -150,35 +150,29 @@ end
 function gui.ColoredText(ref, text, x, y, options)
 	local function paint(x, y, x2, y2, active, self, width, height)
 		local options = self.custom_vars
-		
 		draw.Color(options.color[1], options.color[2], options.color[3])
-		draw.SetFont(options.Font)
+		draw.SetFont(options.font)
 		draw.Text(x, y, options.text)
 	end
 	
 	
 	
-
+	local options = options or {}
 	local vars = {
 		text = text,
 		color = options.color or {255,255,255},
-		
-		font_name = options.font or "Verdana",
-		size = options.size or 14,
-		weight = options.weight or 500
+		font = options.font
 	}
 	
 	
-	vars.Font = draw.CreateFont(vars.font_name, vars.size, vars.weight)
+	
 	
 	local custom = gui._Custom(ref, "", "", x, y, 100, 100, paint, vars)
 
 	local funcs = {
 		SetOptions = function(self, options)
 			vars.text = options.text or vars.text
-			vars.font_name = options.font_name or vars.font_name
-			vars.size = options.size or vars.size
-			vars.weight = options.text or vars.weight
+			vars.font = options.font or vars.font
 		end
 	}
 	
@@ -188,11 +182,13 @@ function gui.ColoredText(ref, text, x, y, options)
 	return funcs
 end
 
+
 -- Examples
 -- local test_tab = gui.Tab(gui.Reference("Misc"), "test.tab", "Test tab")
 
 
 -- gui.Image(ref, img_texture_params, x, y, w, h, fn_on_click)
+
 -- local img_data = http.Get("https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/e5/e53474dbea973d880cb24e5d7247ad77fbb68721_full.jpg")
 -- local decoded_image = {common.DecodeJPEG(img_data)}
 
@@ -202,18 +198,14 @@ end
 
 
 -- gui.ColoredText(ref, text, x, y, options)
+
+-- local font = draw.CreateFont("Bahnschrift", 14)
 -- local text = gui.ColoredText(test_tab, "Hello world", 200, 200, {
-	-- color = {255, 0,0},
-	-- size = 20,
-	-- font = "Bahnschrift",
-	-- weight = 600	
+	-- font = font
+	-- color = {255,0,0}
 -- })
 
--- text:SetOptions({text = "Hi"}) -- Sets text to hi
--- text:SetOptions({text = "Epic", size = 30}) -- Sets text to high and font size to 30
--- text:SetOptions({
-	-- color = {255, 255,255},
-	-- size = 20,
-	-- font = "Bahnschrift",
-	-- weight = 600
--- })
+-- local font = draw.CreateFont("Bahnschrift", 20)
+-- text:SetOptions({text = "Hi"}) -- Sets text to Hi
+-- text:SetOptions({text = "Epic", font = font}) -- Sets text to epic and sets a new font
+
