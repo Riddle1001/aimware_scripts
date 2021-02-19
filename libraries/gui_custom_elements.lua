@@ -161,7 +161,7 @@ function gui.ColoredText(ref, text, x, y, options)
 	local vars = {
 		text = text,
 		color = options.color or {255,255,255},
-		font = options.font
+		font = options.font or draw.CreateFont("Bahnschrift", 14)
 	}
 	
 	
