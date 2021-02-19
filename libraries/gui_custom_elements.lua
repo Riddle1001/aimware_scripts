@@ -30,6 +30,14 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 			self.name = name
 		end,
 		
+		SetPosX = function(self, x)
+			self.element:SetPosX(x)
+		end,
+		
+		SetPosY = function(self, y)
+			self.element:SetPosY(y)
+		end,
+		
 		SetPos = function(self, x, y)
 			self.element:SetPosX(x)
 			self.element:SetPosY(y)
@@ -48,20 +56,20 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 			self.element:SetHeight(h)
 		end,
 		
-		
-		
 		SetVisible = function(self, b)
 			self.element:SetInvisible(not b)
+		end,
+		
+		SetInvisible = function(self, b)
+			self.element:SetInvisible(b)
 		end,
 	}
 	
 	local function _paint(x, y, x2, y2, active)
 		local width = x2 - x
-		-- print(1)
 		local height = y2 - y
 		paint(x, y, x2, y2, active, GuiObject, width, height)
 	end
-	
 	
 	local custom = gui.Custom(ref, varname, x, y, w, h, _paint, write, read)
 	GuiObject.element = custom
@@ -127,18 +135,85 @@ function gui.Image(ref, img_texture_params, x, y, w, h, fn_on_click)
 			return x >= x1 and x < x2 and y >= y1 and y < y2;
 		end
 	}
+	
+	local custom = 	gui._Custom(ref, "", "", x, y, w, h, paint, vars)
+	local funcs = {}
 
-	gui._Custom(ref, "", "", x, y, w, h, paint, vars)
+	local meta = {__index = custom}
+	setmetatable(funcs, meta) -- Allows funcs to have gui._Custom's functions
+	
+	return funcs
 end
 
 
+
+function gui.ColoredText(ref, text, x, y, options)
+	local function paint(x, y, x2, y2, active, self, width, height)
+		local options = self.custom_vars
+		
+		draw.Color(options.color[1], options.color[2], options.color[3])
+		draw.SetFont(options.Font)
+		draw.Text(x, y, options.text)
+	end
+	
+	
+	
+
+	local vars = {
+		text = text,
+		color = options.color or {255,255,255},
+		
+		font_name = options.font or "Verdana",
+		size = options.size or 14,
+		weight = options.weight or 500
+	}
+	
+	
+	vars.Font = draw.CreateFont(vars.font_name, vars.size, vars.weight)
+	
+	local custom = gui._Custom(ref, "", "", x, y, 100, 100, paint, vars)
+
+	local funcs = {
+		SetOptions = function(self, options)
+			vars.text = options.text or vars.text
+			vars.font_name = options.font_name or vars.font_name
+			vars.size = options.size or vars.size
+			vars.weight = options.text or vars.weight
+		end
+	}
+	
+	local meta = {__index = custom}
+	setmetatable(funcs, meta) -- Allows funcs to have gui._Custom's functions
+	
+	return funcs
+end
+
 -- Examples
-local test_tab = gui.Tab(gui.Reference("Misc"), "test.tab", "Test tab")
+-- local test_tab = gui.Tab(gui.Reference("Misc"), "test.tab", "Test tab")
 
 
-local img_data = http.Get("https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/e5/e53474dbea973d880cb24e5d7247ad77fbb68721_full.jpg")
-local decoded_image = {common.DecodeJPEG(img_data)}
+-- gui.Image(ref, img_texture_params, x, y, w, h, fn_on_click)
+-- local img_data = http.Get("https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/e5/e53474dbea973d880cb24e5d7247ad77fbb68721_full.jpg")
+-- local decoded_image = {common.DecodeJPEG(img_data)}
 
-gui.Image(test_tab, decoded_image, 10, 10, 50,50, function()
-	print("Clicked!")
-end)
+-- local img = gui.Image(test_tab, decoded_image, 10, 10, 50,50, function()
+	-- print("Clicked!")
+-- end)
+
+
+-- gui.ColoredText(ref, text, x, y, options)
+-- local text = gui.ColoredText(test_tab, "Hello world", 200, 200, {
+	-- color = {255, 0,0},
+	-- size = 20,
+	-- font = "Bahnschrift",
+	-- weight = 600	
+-- })
+
+-- text:SetOptions({text = "Hi"}) -- Sets text to hi
+-- text:SetOptions({text = "Epic", size = 30}) -- Sets text to high and font size to 30
+-- text:SetOptions({
+	-- color = {255, 255,255},
+	-- size = 20,
+	-- font = "Bahnschrift",
+	-- weight = 600
+-- })
