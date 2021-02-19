@@ -109,7 +109,7 @@ function gui.Image(ref, img, x, y, w, h, fn_on_click)
 		draw.SetTexture(img)
 		draw.FilledRect(x,y,x2,y2)
 		draw.Color(255,255,255, 100)
-		draw.OutlinedRect( x + 1, y + 1, x2 + 1, y2 + 1)
+		draw.OutlinedRect( x - 1, y - 1, x2 + 1, y2 + 1)
 	end
 	
 	local tbl = {nil} -- abusing pass by reference used by tables to use async http.Get to stop game from freezing.
