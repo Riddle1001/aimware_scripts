@@ -57,6 +57,7 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 	
 	local function _paint(x, y, x2, y2, active)
 		local width = x2 - x
+		-- print(1)
 		local height = y2 - y
 		paint(x, y, x2, y2, active, GuiObject, width, height)
 	end
@@ -69,14 +70,13 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 end
 
 
-function gui.Image(ref, img, x, y, w, h, fn_on_click)
+function gui.Image(ref, img_texture_params, x, y, w, h, fn_on_click)
 	local function paint(x, y, x2, y2, active, self, width, height)
-		if not self.custom_vars.img_texture[1] then return end
-		local img = self.custom_vars.img_texture[1]
-		
+		if not self.custom_vars.texture then return end
+
 		local mx, my = input.GetMousePos()
 		local hovering = self.custom_vars.is_in_rect(mx, my, x,y, x2, y2)
-		
+
 
 		if hovering then
 			if fn_on_click then
@@ -94,8 +94,9 @@ function gui.Image(ref, img, x, y, w, h, fn_on_click)
 					end
 					self.custom_vars.old_mouse_left_released = self.custom_vars.mouse_left_released
 				end
+
 			end
-		
+			
 			if input.IsButtonDown(1) then
 				y = y + height / 20
 				x = x + width / 20
@@ -103,40 +104,21 @@ function gui.Image(ref, img, x, y, w, h, fn_on_click)
 				x2 = x2 - height / 20
 				y2 = y2 - width / 20
 			end
-		end
-		
-		
-		draw.SetTexture(img)
-		draw.FilledRect(x,y,x2,y2)
-		draw.Color(255,255,255, 100)
-		draw.OutlinedRect( x - 1, y - 1, x2 + 1, y2 + 1)
-	end
-	
-	local tbl = {nil} -- abusing pass by reference used by tables to use async http.Get to stop game from freezing.
-	
-	if type(img) == "string" and (string.match(img, "https://") or  string.match(img, "https://")) then
-		local extension = string.sub(img, -4)
-		if extension == ".jpg" then
-			http.Get(img, function(img_data)
-				local rgb, width, height = common.DecodeJPEG(img_data)
-				tbl[1] = draw.CreateTexture(rgb, width, height)
-				print("Texture got" )
-			end)
-			rgb, width, height = common.DecodeJPEG(img_data)
-		elseif extension == ".png" then
-			http.Get(img, function(img_data)
-				local rgb, width, height = common.DecodePNG(img_data)
-				tbl[1] = draw.CreateTexture(rgb, width, height)
-			end)
+			draw.Color(255,255,255, 240)
 		else
-			error("No extesion found for the given URL. Suggest uploading the URL on imgur.")
+			draw.Color(255,255,255, 200)
 		end
+		
+		draw.OutlinedRect( x - 1, y - 1, x2 + 1, y2 + 1)
+		draw.SetTexture(self.custom_vars.texture)
+		draw.Color(255,255,255,255)
+		draw.FilledRect(x,y,x2,y2)
 	end
+
 	
-	
+	local texture = draw.CreateTexture(img_texture_params[1], img_texture_params[2], img_texture_params[3])
 	local vars = {
-		img_data = {rgb, width, height},
-		img_texture = tbl,
+		texture = texture,
 				
 		mouse_left_released = true,
 		old_mouse_left_released = true,
@@ -150,12 +132,13 @@ function gui.Image(ref, img, x, y, w, h, fn_on_click)
 end
 
 
-
 -- Examples
--- local test_tab = gui.Tab(gui.Reference("Misc"), "test.tab", "Test tab")
+local test_tab = gui.Tab(gui.Reference("Misc"), "test.tab", "Test tab")
 
--- gui.Image
 
--- local img = gui.Image(test_tab, "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/e5/e53474dbea973d880cb24e5d7247ad77fbb68721_full.jpg", 60, 60, 400, 400, function()
-	-- print("Clicked!!")
--- end)
+local img_data = http.Get("https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/e5/e53474dbea973d880cb24e5d7247ad77fbb68721_full.jpg")
+local decoded_image = {common.DecodeJPEG(img_data)}
+
+gui.Image(test_tab, decoded_image, 10, 10, 50,50, function()
+	print("Clicked!")
+end)
