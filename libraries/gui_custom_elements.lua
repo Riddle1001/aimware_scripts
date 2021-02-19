@@ -71,6 +71,9 @@ end
 
 function gui.Image(ref, img, x, y, w, h, fn_on_click)
 	local function paint(x, y, x2, y2, active, self, width, height)
+		if not self.custom_vars.img_texture[1] then return end
+		local img = self.custom_vars.img_texture[1]
+		
 		local mx, my = input.GetMousePos()
 		local hovering = self.custom_vars.is_in_rect(mx, my, x,y, x2, y2)
 		
@@ -103,32 +106,37 @@ function gui.Image(ref, img, x, y, w, h, fn_on_click)
 		end
 		
 		
-		draw.SetTexture(self.custom_vars.img_texture)
+		draw.SetTexture(img)
 		draw.FilledRect(x,y,x2,y2)
 		draw.Color(255,255,255, 100)
 		draw.OutlinedRect( x + 1, y + 1, x2 + 1, y2 + 1)
 	end
 	
-	local rgb, width, height = nil, nil, nil
+	local tbl = {nil} -- abusing pass by reference used by tables to use async http.Get to stop game from freezing.
 	
 	if type(img) == "string" and (string.match(img, "https://") or  string.match(img, "https://")) then
 		local extension = string.sub(img, -4)
 		if extension == ".jpg" then
-			local img_data = http.Get(img)
+			http.Get(img, function(img_data)
+				local rgb, width, height = common.DecodeJPEG(img_data)
+				tbl[1] = draw.CreateTexture(rgb, width, height)
+				print("Texture got" )
+			end)
 			rgb, width, height = common.DecodeJPEG(img_data)
 		elseif extension == ".png" then
-			local img_data = http.Get(img)
-			rgb, width, height = common.DecodePNG(img_data)
+			http.Get(img, function(img_data)
+				local rgb, width, height = common.DecodePNG(img_data)
+				tbl[1] = draw.CreateTexture(rgb, width, height)
+			end)
 		else
 			error("No extesion found for the given URL. Suggest uploading the URL on imgur.")
 		end
 	end
 	
-	local texture = draw.CreateTexture(rgb, width, height)
 	
 	local vars = {
 		img_data = {rgb, width, height},
-		img_texture = draw.CreateTexture(rgb, width, height),
+		img_texture = tbl,
 				
 		mouse_left_released = true,
 		old_mouse_left_released = true,
@@ -140,6 +148,7 @@ function gui.Image(ref, img, x, y, w, h, fn_on_click)
 
 	gui._Custom(ref, "", "", x, y, w, h, paint, vars)
 end
+
 
 
 -- Examples
