@@ -146,6 +146,7 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 		end
 
 		if GuiObject._old_mouse_hovering ~= GuiObject._mouse_hovering then
+			-- print(GuiObject._mouse_hovering)
 			GuiObject:OnHovered(GuiObject._mouse_hovering)
 			GuiObject._old_mouse_hovering = GuiObject._mouse_hovering
 		end
@@ -181,8 +182,8 @@ function gui.ColoredText(ref, text, x, y, options)
 		
 	
 	end
+	local options = options or {}
 	
-	local options = options or {} -- only have this here so I can fix the underline_color
 	local vars = {
 		text = text,
 		text_color = options.text_color and {options.text_color[1] or 255, options.text_color[2] or 255, options.text_color[3] or 255, options.text_color[4] or 255} or {255,255,255,255},
@@ -211,7 +212,19 @@ function gui.ColoredText(ref, text, x, y, options)
 	return custom
 end
 
+function gui.LinkText(ref, text, x, y, options)
 
+	local linked_text = gui.ColoredText(ref, text, x, y, {text_color = {0, 70, 255}})	
+	linked_text.OnHovered = function(self, IsHovering)
+		self:SetOptions({underline = IsHovering})
+	end
+	
+	linked_text.DoClick = function(self)
+		print("Clicked")
+	end
+
+	return linked_text
+end
 
 
 -- Examples
@@ -219,9 +232,8 @@ end
 
 -- local test_tab = gui.Tab(gui.Reference("Misc"), "test.tab", "Test tab")
 
-
 -- local font = draw.CreateFont("Bahnschrift", 14)
--- local text = gui.ColoredText(test_tab, "Hello world", 200, 150, {
+-- local text = gui.ColoredText(test_tab, "Hello world", 100, 100, {
 	-- font = font,
 	-- text_color = {255,0,0}
 -- })
@@ -230,4 +242,4 @@ end
 	-- self:SetOptions({text = "I have been clicked!"})
 -- end
 
--- local text = gui.LinkText(test_tab, "Hello world", 200, 200)
+-- local linked_texted = gui.LinkText(test_tab, "Hello world", 200, 200)
