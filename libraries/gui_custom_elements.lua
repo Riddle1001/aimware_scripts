@@ -9,11 +9,25 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 		return tbl.val
 	end
 	
+	local function is_in_rect(x, y, x1, y1, x2, y2)
+		return x >= x1 and x < x2 and y >= y1 and y < y2;
+	end
+	
 	local GuiObject = {
 		element = nil,
 		custom_vars = custom_vars or {},
 		name = name,
 		
+		_element_pos_x = x,
+		_element_pos_y = y,
+		
+		_element_width = w,
+		_element_height = h,
+		
+		
+		
+		_parent = ref,
+			
 		GetValue = function(self)
 			return self.element:GetValue()
 		end,
@@ -32,28 +46,44 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 		
 		SetPosX = function(self, x)
 			self.element:SetPosX(x)
+			self._element_pos_x = x
 		end,
 		
 		SetPosY = function(self, y)
 			self.element:SetPosY(y)
+			self._element_pos_y = y
 		end,
 		
 		SetPos = function(self, x, y)
 			self.element:SetPosX(x)
 			self.element:SetPosY(y)
+			self._element_pos_x = x
+			self._element_pos_y = y
+		end,
+		
+		GetPos = function(self)
+			return self._element_pos_x, self._element_pos_y
 		end,
 		
 		SetWidth = function(self, width)
 			self.element:SetWidth(width)
+			self._element_width = width
 		end,
 		
 		SetHeight = function(self, height)
 			self.element:SetHeight(height)
+			self._element_height = height
 		end,
 		
 		SetSize = function(self, w, h)
 			self.element:SetWidth(w)
 			self.element:SetHeight(h)
+			self._element_width = width
+			self._element_height = height
+		end,
+		
+		GetSize = function(self)
+			return self._element_width, self._element_height 
 		end,
 		
 		SetVisible = function(self, b)
@@ -63,9 +93,63 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 		SetInvisible = function(self, b)
 			self.element:SetInvisible(b)
 		end,
+		
+		GetParent = function(self)
+			return self._parent
+		end,
+		
+		_mouse_left_released = true,
+		_old_mouse_left_released = true,
+		
+		OnClick = function(self) -- you rewrite this function when creating elements
+			
+		end,
+				
+		hovering = function(x, y, x2, y2)
+			local mx, my = input.GetMousePos()
+			return is_in_rect(mx, my, x, y, x2, y2)
+		end,
+		
+		_mouse_hovering = false,
+		_old_mouse_hovering = false,
+		OnHovered = function(self)
+			
+		end,	
 	}
 	
+	local meta = {__index = custom_vars}
+	setmetatable(GuiObject, meta)
+	
 	local function _paint(x, y, x2, y2, active)
+	
+		local mx, my = input.GetMousePos()
+		local hovering = GuiObject.hovering(x, y, x2, y2)
+		
+		if hovering then
+			GuiObject._mouse_hovering = true		
+			if input.IsButtonReleased(1) then
+				GuiObject._mouse_left_released = true
+			end
+		
+			if input.IsButtonDown(1) then
+				GuiObject._mouse_left_released = false
+			end
+		
+			if GuiObject._mouse_left_released ~= GuiObject._old_mouse_left_released then
+				if not GuiObject._mouse_left_released then -- Clicked
+					GuiObject:OnClick()
+				end
+				GuiObject._old_mouse_left_released = GuiObject._mouse_left_released
+			end
+		else
+			GuiObject._mouse_hovering = false
+		end
+
+		if GuiObject._old_mouse_hovering ~= GuiObject._mouse_hovering then
+			GuiObject:OnHovered(GuiObject._mouse_hovering)
+			GuiObject._old_mouse_hovering = GuiObject._mouse_hovering
+		end
+		
 		local width = x2 - x
 		local height = y2 - y
 		paint(x, y, x2, y2, active, GuiObject, width, height)
@@ -78,134 +162,72 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 end
 
 
-function gui.Image(ref, img_texture_params, x, y, w, h, fn_on_click)
-	local function paint(x, y, x2, y2, active, self, width, height)
-		if not self.custom_vars.texture then return end
-
-		local mx, my = input.GetMousePos()
-		local hovering = self.custom_vars.is_in_rect(mx, my, x,y, x2, y2)
-
-
-		if hovering then
-			if fn_on_click then
-				if input.IsButtonReleased(1) then
-					self.custom_vars.mouse_left_released = true
-				end
-				
-				if input.IsButtonDown(1) then
-					self.custom_vars.mouse_left_released = false
-				end
-				
-				if self.custom_vars.mouse_left_released ~= self.custom_vars.old_mouse_left_released then
-					if not self.custom_vars.mouse_left_released then -- Clicked
-						fn_on_click()
-					end
-					self.custom_vars.old_mouse_left_released = self.custom_vars.mouse_left_released
-				end
-
-			end
-			
-			if input.IsButtonDown(1) then
-				y = y + height / 20
-				x = x + width / 20
-				
-				x2 = x2 - height / 20
-				y2 = y2 - width / 20
-			end
-			draw.Color(255,255,255, 240)
-		else
-			draw.Color(255,255,255, 200)
-		end
-		
-		draw.OutlinedRect( x - 1, y - 1, x2 + 1, y2 + 1)
-		draw.SetTexture(self.custom_vars.texture)
-		draw.Color(255,255,255,255)
-		draw.FilledRect(x,y,x2,y2)
-	end
-
-	
-	local texture = draw.CreateTexture(img_texture_params[1], img_texture_params[2], img_texture_params[3])
-	local vars = {
-		texture = texture,
-				
-		mouse_left_released = true,
-		old_mouse_left_released = true,
-		
-		is_in_rect = function(x, y, x1, y1, x2, y2)
-			return x >= x1 and x < x2 and y >= y1 and y < y2;
-		end
-	}
-	
-	local custom = 	gui._Custom(ref, "", "", x, y, w, h, paint, vars)
-	local funcs = {}
-
-	local meta = {__index = custom}
-	setmetatable(funcs, meta) -- Allows funcs to have gui._Custom's functions
-	
-	return funcs
-end
-
-
-
 function gui.ColoredText(ref, text, x, y, options)
 	local function paint(x, y, x2, y2, active, self, width, height)
 		local options = self.custom_vars
-		draw.Color(options.color[1], options.color[2], options.color[3])
+	
+		-- text
+		draw.Color(options.text_color[1], options.text_color[2], options.text_color[3])		
 		draw.SetFont(options.font)
-		draw.Text(x, y, options.text)
+		draw.Text(x, y, options.text)		
+		
+		--underline
+		if options.underline then
+			local text_x, text_y = draw.GetTextSize(options.text)
+			local underline_space = 5
+			draw.Color(options.underline_color[1], options.underline_color[2], options.underline_color[3], options.underline_color[4])
+			draw.Line(x, y + text_y + underline_space, x + text_x, y + text_y + underline_space)
+		end
+		
+	
 	end
 	
-	
-	
-	local options = options or {}
+	local options = options or {} -- only have this here so I can fix the underline_color
 	local vars = {
 		text = text,
-		color = options.color or {255,255,255},
-		font = options.font or draw.CreateFont("Bahnschrift", 14)
+		text_color = options.text_color and {options.text_color[1] or 255, options.text_color[2] or 255, options.text_color[3] or 255, options.text_color[4] or 255} or {255,255,255,255},
+		font = options.font or draw.CreateFont("Bahnschrift", 14),
+		
+		underline = options.underline or false,
 	}
-	
-	
-	
-	
-	local custom = gui._Custom(ref, "", "", x, y, 100, 100, paint, vars)
+	vars.underline_color = options.underline_color and {options.underline_color[1] or 255, options.underline_color[2] or 255, options.underline_color[3] or 255, options.underline_color[4] or 255} or vars.text_color
 
-	local funcs = {
-		SetOptions = function(self, options)
-			vars.text = options.text or vars.text
-			vars.font = options.font or vars.font
-		end
-	}
 	
-	local meta = {__index = custom}
-	setmetatable(funcs, meta) -- Allows funcs to have gui._Custom's functions
-	
-	return funcs
+
+	local text_x, text_y = draw.GetTextSize(text)
+	local custom = gui._Custom(ref, "", "", x, y, text_x, text_y, paint, vars)
+		
+	function custom:SetOptions(options)
+		vars.text = options.text or vars.text
+		vars.font = options.font or vars.font
+		vars.text_color = options.text_color and {options.text_color[1] or 255, options.text_color[2] or 255, options.text_color[3] or 255, options.text_color[4] or 255} or vars.text_color
+		vars.underline = options.underline
+		vars.underline_color = options.underline_color and {options.underline_color[1] or 255, options.underline_color[2] or 255, options.underline_color[3] or 255, options.underline_color[4] or 255} or vars.underline_color
+		
+		local text_x, text_y = draw.GetTextSize(vars.text)
+		self:SetSize(text_x, text_y)
+	end
+		
+	return custom
 end
 
 
+
+
 -- Examples
+
+
 -- local test_tab = gui.Tab(gui.Reference("Misc"), "test.tab", "Test tab")
 
 
--- gui.Image(ref, img_texture_params, x, y, w, h, fn_on_click)
-
--- local img_data = http.Get("https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/e5/e53474dbea973d880cb24e5d7247ad77fbb68721_full.jpg")
--- local decoded_image = {common.DecodeJPEG(img_data)}
-
--- local img = gui.Image(test_tab, decoded_image, 10, 10, 50,50, function()
-	-- print("Clicked!")
--- end)
-
-
--- gui.ColoredText(ref, text, x, y, options)
-
 -- local font = draw.CreateFont("Bahnschrift", 14)
--- local text = gui.ColoredText(test_tab, "Hello world", 200, 200, {
-	-- font = font
-	-- color = {255,0,0}
+-- local text = gui.ColoredText(test_tab, "Hello world", 200, 150, {
+	-- font = font,
+	-- text_color = {255,0,0}
 -- })
 
--- local font = draw.CreateFont("Bahnschrift", 20)
--- text:SetOptions({text = "Hi"}) -- Sets text to Hi
--- text:SetOptions({text = "Epic", font = font}) -- Sets text to epic and sets a new font
+-- text.OnClick = function(self)
+	-- self:SetOptions({text = "I have been clicked!"})
+-- end
 
+-- local text = gui.LinkText(test_tab, "Hello world", 200, 200)
