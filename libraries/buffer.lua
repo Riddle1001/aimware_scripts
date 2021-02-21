@@ -1,4 +1,6 @@
-function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
+chicken = chicken or {}
+chicken.ui = chicken.ui or {}
+function chicken.ui.Create(ref, varname, name, x, y, w, h, paint, custom_vars)
 	local tbl = {val = 0}
 
 	local function read(v)
@@ -25,6 +27,8 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 		_element_height = h,
 		
 		-- For drawing children....
+		
+		
 		paint = paint,
 		_Children = {},
 		
@@ -38,7 +42,9 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 		addChild = function(self, child)
 			self._Children[#self._Children + 1] = child
 			self._Children[#self._Children]:SetChild()
+			
 			self._Children[#self._Children]._parent = self
+			
 			return self
 		
 		end,
@@ -57,6 +63,7 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 		-- End children shit
 		
 		_parent = ref,
+		ParentIsChickenUI = false, 
 			
 		GetValue = function(self)
 			return self.element:GetValue()
@@ -163,6 +170,8 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 	}
 	
 	
+	
+	
 	local meta = {__index = custom_vars}
 	setmetatable(GuiObject, meta)
 	
@@ -224,7 +233,7 @@ function gui._Custom(ref, varname, name, x, y, w, h, paint, custom_vars)
 end
 
 
-function gui.ColoredText(ref, text, x, y, options)
+function chicken.ui.ColoredText(ref, text, x, y, options)
 	local function paint(x, y, x2, y2, active, self, width, height)
 		-- print(1)
 		local options = self.custom_vars
@@ -233,7 +242,8 @@ function gui.ColoredText(ref, text, x, y, options)
 		draw.Color(options.text_color[1], options.text_color[2], options.text_color[3])		
 		draw.SetFont(options.font)
 		
-		-- parse \n & and do text wrap
+		-- parse \n 
+		-- todo text wrap
 		if not self.custom_vars.fixed_text then
 			local new_index = 1
 			local len = string.len(options.text)
@@ -260,10 +270,7 @@ function gui.ColoredText(ref, text, x, y, options)
 				draw.Text(x, y, line)
 			end
 		end
-		
-		
-		
-		
+				
 		--underline
 		if options.underline then
 			local text_x, text_y = draw.GetTextSize(options.text)
@@ -291,7 +298,7 @@ function gui.ColoredText(ref, text, x, y, options)
 	
 
 	local text_x, text_y = draw.GetTextSize(text)
-	local custom = gui._Custom(ref, "", "", x, y, text_x, text_y, paint, vars)
+	local custom = chicken.ui.Create(ref, "", "", x, y, text_x, text_y, paint, vars)
 		
 	function custom:SetOptions(options)
 		vars.text = options.text or vars.text
@@ -307,7 +314,7 @@ function gui.ColoredText(ref, text, x, y, options)
 	return custom
 end
 
-function gui.LinkText(ref, text, x, y, options)
+function chicken.ui.LinkText(ref, text, x, y, options)
 
 	local linked_text = gui.ColoredText(ref, text, x, y, {text_color = {0, 70, 255}})	
 	linked_text.OnHovered = function(self, IsHovering)
@@ -321,7 +328,7 @@ function gui.LinkText(ref, text, x, y, options)
 	return linked_text
 end
 
-function gui.Image(ref, img_texture_params, x, y, w, h)
+function chicken.ui.Image(ref, img_texture_params, x, y, w, h)
 	local function paint(x, y, x2, y2, active, self, width, height)
 		
 		if not self.custom_vars.texture then return end
@@ -340,10 +347,6 @@ function gui.Image(ref, img_texture_params, x, y, w, h)
 			y2 = y2 - width / 20
 		end
 		
-		
-		
-		-- draw.OutlinedRect( x - 1, y - 1, x2 + 1, y2 + 1)
-
 		draw.SetTexture(self.custom_vars.texture)
 		
 		draw.Color(255,255,255,255)
@@ -358,7 +361,7 @@ function gui.Image(ref, img_texture_params, x, y, w, h)
 		paint = paint
 	}
 	
-	local custom = 	gui._Custom(ref, "Images", "test2", x, y, w, h, paint, vars)
+	local custom = 	chicken.ui.Create(ref, "Images", "test2", x, y, w, h, paint, vars)
 	
 	function custom:SetTexture(img_texture_params)
 		vars.texture = draw.CreateTexture(img_texture_params[1], img_texture_params[2], img_texture_params[3])
@@ -367,9 +370,9 @@ function gui.Image(ref, img_texture_params, x, y, w, h)
 	return custom
 end
 
--- local test_tab = gui.Tab(gui.Reference("Settings"), "test.tab", "Test tab")
+local test_tab = gui.Tab(gui.Reference("Settings"), "test.tab", "Test tab")
 
-function gui._GroupBox(ref, x, y, w, h)
+function chicken.ui.GroupBox(ref, x, y, w, h)
 	local function paint(x, y, x2, y2, active, self, width, height)
 		draw.Color(0,0,0, 100)
 
@@ -377,10 +380,7 @@ function gui._GroupBox(ref, x, y, w, h)
 		draw.Color(unpack(self.custom_vars.header_bg))
 		draw.FilledRect(x, y, x2, y2 - (h / 1.25))
 		
-		local children_height = 0
-		
-		
-		
+		local children_height = 0		
 	end
 	
 	local font = draw.CreateFont("Arial", 18)
@@ -390,8 +390,8 @@ function gui._GroupBox(ref, x, y, w, h)
 		header_bg = {150,0,0}
 	}
 	
-	local custom = 	gui._Custom(ref, "", "", x, y, w, h, paint, vars)
-	custom.header_text = gui.ColoredText(test_tab, "Lua loader V2 | Made by chicken",5,5, {font = font})
+	local custom = 	chicken.ui.Create(ref, "", "", x, y, w, h, paint, vars)
+	custom.header_text = chicken.ui.ColoredText(test_tab, "Lua loader V2 | Made by chicken",5,5, {font = font})
 	custom:addChild(custom.header_text)
 	
 	
@@ -399,4 +399,21 @@ function gui._GroupBox(ref, x, y, w, h)
 end
 
 
-return gui
+-- Examples
+print("Colored text", gui.ColoredText)
+
+local gb = chicken.ui.GroupBox(test_tab, 0, 0, 650, 100)
+local font = draw.CreateFont("Arial", 16)
+local text = chicken.ui.ColoredText(test_tab, [[This lua is meant to make it easier for aimware users to both run and download script that was made
+for Aimware.
+Credits for lua loader: Chicken4676 (patient player)
+Lua loader last update: 2/19/2021 | Scripts last updated 2/19/2021
+]], 5, 20, {font = font})
+gb:addChild(text, gb)
+
+
+
+-- local img = gui.Image(test_tab, img_data, 0, 0, 25, 25)
+-- gb:addChild(img)
+
+
