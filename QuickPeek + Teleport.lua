@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.71
+--version 1.72
 
 
 local function split(s)
@@ -83,17 +83,17 @@ local quickpeek_gb = gui.Groupbox(quickpeek_tab, "Quickpeek", 15, 15, 605, 0)
 
 local quickpeek_enable = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.enable", "Enable", false)
 
-local quickpeek_method = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.method", "Method", "Faster (AimbotTarget, unreliable)", "Slower (cmd.buttons)" , "Slow (weapon_fire)", "Slowest (bullet_impact)", "Return on stop")
+local quickpeek_method = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.method", "Method", "Faster (AimbotTarget, unreliable)", "Slower (cmd.buttons)" , "Slow (weapon_fire)", "Slowest (bullet_impact)")
 quickpeek_method:SetDescription("The method to be used to initiate return to original peek position.")
 
 local quickpeek_return_pos = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.toggle", "Return position", "Hold", "Toggle")
--- quickpeek_return_pos:SetDescription("The method to be used to detect local weapon fire.")
 
 local quickpeek_key = gui.Keybox(quickpeek_gb, "Chicken.quickpeek.key", "Quick peek key", 5)
 quickpeek_key:SetWidth(1145)
--- local quickpeek_clear_key = gui.Keybox(quickpeek_gb, "Chicken.quickpeek.clear", "Clear quick peek key", 6)
--- quickpeek_clear_key:SetPosX(290)
--- quickpeek_clear_key:SetPosY(148)
+
+
+local quickpeek_return_on_stop = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.return_on_stop.enable", "Return on stop", false)
+quickpeek_return_on_stop:SetDescription("Returns you to the peek position when you let go of your movement keys (W,A,S,D,SPACE)")
 
 local quickpeek_teleport = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.teleport.enable", "Teleport on peek", false)
 
@@ -150,7 +150,7 @@ callbacks.Register("Draw", function()
 	end
 	
 	if quickpeek_return_pos:GetValue() == 0 and quickpeek_key:GetValue() and input.IsButtonReleased(quickpeek_key:GetValue()) then -- Hold selected and quickpeek key released
-		-- print(1)
+		return_pos = false
 		is_peeking = false
 		should_return = false
 		weapon_fired = false
@@ -204,12 +204,15 @@ end)
 function is_movement_keys_down()
     return input.IsButtonDown( 87 ) or input.IsButtonDown( 65 ) or input.IsButtonDown( 83 ) or input.IsButtonDown( 68 ) or input.IsButtonDown( 32 ) or input.IsButtonDown( 17 )
 end
+
+
 local override_movement = true
 callbacks.Register("Draw", function()
 	local localplayer = entities.GetLocalPlayer()
 	if not localplayer then return end
 	
-	if quickpeek_method:GetValue() == 4 and return_pos then
+	if quickpeek_return_on_stop:GetValue() and return_pos and not weapon_fired then
+		print(111)
 		override_movement = false
 		local my_pos = localplayer:GetAbsOrigin()
 		local dist = vector.Distance({my_pos.x, my_pos.y, my_pos.z}, {return_pos.x, return_pos.y, return_pos.z})
@@ -273,6 +276,7 @@ callbacks.Register("Draw", function()
 		quickpeek_key:SetInvisible(not quickpeek_enable:GetValue())
 		-- quickpeek_clear_key:SetInvisible(not quickpeek_enable:GetValue())
 		quickpeek_teleport:SetInvisible(not quickpeek_enable:GetValue())
+		quickpeek_return_on_stop:SetInvisible(not quickpeek_enable:GetValue())
 		quickpeek_teleport_maxusrcmdprocessticks:SetInvisible(not quickpeek_enable:GetValue())
 		-- quickpeek_clear_key:SetDisabled(quickpeek_return_pos:GetValue() == 0 and true)
 		
