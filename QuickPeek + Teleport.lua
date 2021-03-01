@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.166
+--version 1.7
 
 
 local function split(s)
@@ -83,8 +83,8 @@ local quickpeek_gb = gui.Groupbox(quickpeek_tab, "Quickpeek", 15, 15, 605, 0)
 
 local quickpeek_enable = gui.Checkbox(quickpeek_gb, "Chicken.quickpeek.enable", "Enable", false)
 
-local quickpeek_method = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.method", "Method", "Faster (AimbotTarget, unreliable)", "Slower (cmd.buttons)" , "Slow (weapon_fire)", "Slowest (bullet_impact)")
-quickpeek_method:SetDescription("The method to be used to detect local weapon fire.")
+local quickpeek_method = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.method", "Method", "Faster (AimbotTarget, unreliable)", "Slower (cmd.buttons)" , "Slow (weapon_fire)", "Slowest (bullet_impact)", "Return on stop")
+quickpeek_method:SetDescription("The method to be used to initiate return to original peek position.")
 
 local quickpeek_return_pos = gui.Combobox(quickpeek_gb, "Chicken.quickpeek.toggle", "Return position", "Hold", "Toggle")
 -- quickpeek_return_pos:SetDescription("The method to be used to detect local weapon fire.")
@@ -150,6 +150,7 @@ callbacks.Register("Draw", function()
 	end
 	
 	if quickpeek_return_pos:GetValue() == 0 and quickpeek_key:GetValue() and input.IsButtonReleased(quickpeek_key:GetValue()) then -- Hold selected and quickpeek key released
+		-- print(1)
 		is_peeking = false
 		should_return = false
 		weapon_fired = false
@@ -199,6 +200,27 @@ callbacks.Register("AimbotTarget", function(t)
 	end
 end)
 
+function is_movement_keys_down()
+    return input.IsButtonDown( 87 ) or input.IsButtonDown( 65 ) or input.IsButtonDown( 83 ) or input.IsButtonDown( 68 ) or input.IsButtonDown( 32 ) or input.IsButtonDown( 17 )
+end
+local override_movement = true
+callbacks.Register("Draw", function()
+	local localplayer = entities.GetLocalPlayer()
+	if not localplayer then return end
+	
+	if quickpeek_method:GetValue() == 4 and return_pos then
+		override_movement = false
+		local my_pos = localplayer:GetAbsOrigin()
+		local dist = vector.Distance({my_pos.x, my_pos.y, my_pos.z}, {return_pos.x, return_pos.y, return_pos.z})
+		if not is_movement_keys_down() and dist >= 6 then
+			should_return = true
+		end
+	else
+		override_movement = true
+	end
+end)
+
+
 local weapon_fired_at = 0
 callbacks.Register("CreateMove", function(cmd)
 	local localplayer = entities.GetLocalPlayer()
@@ -217,6 +239,7 @@ callbacks.Register("CreateMove", function(cmd)
 	end
 	
 	if should_return and return_pos then
+		if not override_movement and is_movement_keys_down() then return end
 		move_to_pos(return_pos, cmd, 1000)
 		
 		
@@ -308,7 +331,6 @@ callbacks.Register("FireGameEvent", function(e)
 		
 			weapon_fired = true
 			weapon_fired_at = globals.TickCount()
-			should_return = true
 			
 			if is_peeking then
 				should_return = true
