@@ -1,5 +1,5 @@
 --AW AutoUpdate
---version 1.7
+--version 1.71
 
 
 local function split(s)
@@ -181,7 +181,7 @@ callbacks.Register("Draw", function()
 		end
 	end
 	
-	if should_return and not speedbursted then
+	if should_return and weapon_fired and not speedbursted then
 		speedbursted = true
 		cheat.RequestSpeedBurst()
 	end
@@ -196,6 +196,7 @@ callbacks.Register("AimbotTarget", function(t)
 	if not quickpeek_enable:GetValue() then return end--or (weapon:GetWeaponID() ~= 40 and weapon:GetWeaponID() ~= 9) then return end
 
 	if quickpeek_method:GetValue() == 0 and t:GetIndex() and is_peeking then
+		weapon_fired = true
 		should_return = true
 	end
 end)
