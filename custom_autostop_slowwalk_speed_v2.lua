@@ -1,4 +1,4 @@
-```local has_target = false
+local has_target = false
 
 callbacks.Register("AimbotTarget", function(t)
 	has_target = t:GetIndex() and true or false
@@ -6,6 +6,8 @@ end)
 
 local slow_walk_string = "rbot.accuracy.movement.slowkey"
 local auto_stop_string = "rbot.accuracy.wpnmovement.asniper.autostop"
+
+local w,h = draw.GetScreenSize()
 
 callbacks.Register("Draw", function()
 	local VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )
@@ -48,5 +50,6 @@ callbacks.Register("Draw", function()
 	if input.IsButtonPressed(37) then
 		gui.SetValue("rbot.accuracy.movement.slowspeed", slow_walk_speed - 1)
 	end
-	draw.Text(15, 600, slow_walk_speed)
-end)```
+	
+	draw.Text(15, h/2, slow_walk_speed)
+end)
