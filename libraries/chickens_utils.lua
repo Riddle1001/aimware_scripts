@@ -63,3 +63,25 @@ function IsValid(entity)
 	return entity:GetIndex()
 end
 
+function closest_to_crosshair()
+	local lowest = math.huge			
+	local x, y = draw.GetScreenSize()
+	local mid_x = x / 2
+	local mid_y = y / 2
+	
+	local closest = nil
+	
+	for k, v in pairs(entities.FindByClass("CCSPlayer")) do
+		if v:GetIndex() ~= entities.GetLocalPlayer():GetIndex() and v:GetTeamNumber() ~= entities.GetLocalPlayer():GetTeamNumber() and v:IsAlive() then
+			local p_x, p_y = client.WorldToScreen(v:GetAbsOrigin())
+			if  p_x and p_y then
+				local dist = math.pow(mid_x - p_x, 2) + math.pow(mid_y - p_y, 2)
+				if dist < lowest then
+					closest = v
+					lowest = dist
+				end
+			end
+		end
+	end
+	return closest
+end
