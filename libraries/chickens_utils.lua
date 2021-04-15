@@ -42,6 +42,22 @@ function GetVelocity(entity)
 	return math.sqrt(VelocityX^2 + VelocityY^2)
 end
 
+function is_crouching(player)
+	return player:GetProp('m_flDuckAmount') > 0.1
+end
+
+function is_scoped(player)
+	return player:GetProp("m_bIsScoped") ~= 0
+end
+
+
+function move_to_pos(pos, cmd, speed)
+	local LocalPlayer = entities.GetLocalPlayer()
+	local angle_to_target = (pos - entities.GetLocalPlayer():GetAbsOrigin()):Angles()
+
+	cmd.forwardmove = math.cos(math.rad((engine:GetViewAngles() - angle_to_target).y)) * speed
+	cmd.sidemove = math.sin(math.rad((engine:GetViewAngles() - angle_to_target).y)) * speed
+end
 
 function IsValid(entity)
 	return entity:GetIndex()
