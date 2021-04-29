@@ -85,3 +85,26 @@ function closest_to_crosshair()
 	end
 	return closest
 end
+
+
+local function quick_stop(cmd, desired_velocity)
+	local VelocityX = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" );
+	local VelocityY = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" );
+	local VelocityZ = entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[2]" );
+	local speed = math.sqrt(VelocityX^2 + VelocityY^2);
+	
+	if speed <= desired_velocity then return end
+
+	local velocity = {x = VelocityX, y = VelocityY, z = VelocityZ}
+	local directionX, directionY, directionZ = vector.Angles( {velocity.x,velocity.y,velocity.z} )
+
+	viewanglesX, viewanglesY = engine.GetViewAngles().x, engine.GetViewAngles().y
+
+	directionY = viewanglesY - directionY
+	dirForwardX, dirForwardY, dirForwardZ = vector.AngleForward({directionX, directionY, directionZ})
+
+	negated_directionX, negated_directionY, negated_directionZ = vector.Multiply({dirForwardX, dirForwardY, dirForwardZ}, -speed)
+
+	cmd.forwardmove = negated_directionX
+	cmd.sidemove = negated_directionY 
+end
