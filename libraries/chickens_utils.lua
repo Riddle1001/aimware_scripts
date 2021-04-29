@@ -1,4 +1,5 @@
 -- Just random functions I find useful that I could copy and paste out of here
+-- (a lot of these are probably not mine!)
 
 -- File stuff
 
