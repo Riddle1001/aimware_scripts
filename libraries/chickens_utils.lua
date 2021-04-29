@@ -108,3 +108,8 @@ local function quick_stop(cmd, desired_velocity)
 	cmd.forwardmove = negated_directionX
 	cmd.sidemove = negated_directionY 
 end
+
+function is_movement_keys_down()
+    return input.IsButtonDown( 87 ) or input.IsButtonDown( 65 ) or input.IsButtonDown( 83 ) or input.IsButtonDown( 68 ) or input.IsButtonDown( 32 ) or input.IsButtonDown( 17 )
+end
+
