@@ -68,6 +68,10 @@ local oneway_indicator_autowalk_key = gui.Keybox(oneway_indicator_group, "autowa
 local oneway_indicator_circle_size = gui.Slider( oneway_indicator_group, "circle_size", "Circle size", 3, 1, 500)
 local oneway_indicator_circle_distance = gui.Slider( oneway_indicator_group, "circle_draw_distance", "Draw circle distance", 1200, 1, 4000)
 
+function map(n, start1, stop1, start2, stop2)
+  return ((n-start1)/(stop1-start1))*(stop2-start2)+start2
+end
+
 
 local function move_to_pos(pos, cmd) -- not mine I think shadyretards?
 	local LocalPlayer = entities.GetLocalPlayer()
@@ -76,19 +80,10 @@ local function move_to_pos(pos, cmd) -- not mine I think shadyretards?
 	
 	local speed = 255
 	local dist = vector.Distance({my_pos.x, my_pos.y, my_pos.z}, {pos.x, pos.y, pos.z})
-	
-	if dist < 30 then
-		speed = 50
+
+	if dist < 40 then
+		speed = map(dist, 0, 40, 0, 255)
 	end
-	if dist < 25 then
-		speed = 25
-	end
-	if dist < 3 then
-		speed = 5
-	end
-	
-	-- print(speed)
-	
 	
 	cmd.forwardmove = math.cos(math.rad((engine:GetViewAngles() - angle_to_target).y)) * speed
 	cmd.sidemove = math.sin(math.rad((engine:GetViewAngles() - angle_to_target).y)) * speed
@@ -200,6 +195,7 @@ local function draw_oneways()
 				local dist = vector.Distance({player:GetAbsOrigin().x,player:GetAbsOrigin().y,player:GetAbsOrigin().z}, {oneway[1],oneway[2],oneway[3]} )
 				local x, y = client.WorldToScreen(Vector3(oneway[1], oneway[2], oneway[3]))
 				if x and y then
+				
 					if dist < 100 and isEnemy and player:IsAlive() then 
 						draw.Color(255, 0, 0)
 						draw.FilledCircle(x, y, oneway_indicator_circle_size:GetValue() + 3)
