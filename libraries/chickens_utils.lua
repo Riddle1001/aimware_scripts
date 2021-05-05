@@ -114,3 +114,66 @@ function is_movement_keys_down()
     return input.IsButtonDown( 87 ) or input.IsButtonDown( 65 ) or input.IsButtonDown( 83 ) or input.IsButtonDown( 68 ) or input.IsButtonDown( 32 ) or input.IsButtonDown( 17 )
 end
 
+
+local function is_vis(LocalPlayerPos)
+    local is_vis = false
+    local players = entities.FindByClass("CCSPlayer")
+    local fps = 1
+    for i, player in pairs(players) do
+        if player:GetTeamNumber() ~= entities.GetLocalPlayer():GetTeamNumber() and player:IsPlayer() and player:IsAlive() then
+            for i = 0, 18 do
+				if   i == 0 and debug_hitbox_head:GetValue() or
+					 i == 6 and debug_hitbox_chest:GetValue() or
+					 i == 3 and debug_hitbox_pelvis:GetValue() or
+					 
+					 i == 18 and debug_hitbox_leftarm:GetValue() or
+					 i == 16 and debug_hitbox_rightarm:GetValue() or
+					 
+					 i == 7 and debug_hitbox_leftleg:GetValue() or
+					 i == 8 and debug_hitbox_rightleg:GetValue() then
+			
+					for x = 0, debug_point_scale_amount:GetValue() do
+						local v = player:GetHitboxPosition(i)
+						if x == 0 then
+							v.x = v.x
+							v.y = v.y 
+						elseif x == 1 then
+							v.x = v.x
+							v.y = v.y + 4
+						elseif x == 2 then
+							v.x = v.x
+							v.y = v.y - 4
+						elseif x == 3 then
+							v.x = v.x + 4
+							v.y = v.y
+						elseif x == 4 then
+							v.x = v.x - 4
+							v.y = v.y
+						end
+
+						local c = (engine.TraceLine(LocalPlayerPos, v, 0x1)).contents
+						
+						local x,y = client.WorldToScreen(LocalPlayerPos)
+						local x2,y2 = client.WorldToScreen(v)
+						
+						
+						if c == 0 then draw.Color(0,255,0) else draw.Color(225,0,0) end
+						if debug_show_tracers:GetValue() and x and x2 then
+							draw.Line(x,y,x2,y2)
+						end
+						
+						
+						if c == 0 then
+							is_vis = true
+							break
+						end
+						
+						
+					end
+				end
+            end
+        end
+    end
+    return is_vis
+end
+
